@@ -1,0 +1,6 @@
+{
+  "base_url": {"description": "ShuttleUp HTTPS 地址", "type": "string", "hint": "https://shuttleup.example"},
+  "bot_key": {"description": "Bot 标识", "type": "string", "default": "main"},
+  "api_token": {"description": "服务端 ASTRBOT_MAIN_TOKEN", "type": "string", "obvious_hint": true}
+}
+

@@ -1,0 +1,25 @@
+:root {
+  --bg: #f7f8f5;
+  --surface: #ffffff;
+  --text: #182923;
+  --muted: #5d6d64;
+  --line: #e1e7e2;
+  --primary: #087f72;
+  --primary-hover: #066b61;
+  --primary-soft: #e5f4ef;
+  --danger: #b33b3b;
+  --warning: #875d12;
+  --warning-soft: #fff5db;
+  --unknown: #edf0ee;
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --content-width: 1200px;
+  --control-height: 44px;
+}
+

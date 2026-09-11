@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+.pytest_cache
+data
+frontend/node_modules
+frontend/dist
+frontend/playwright-report
+frontend/test-results
+backend/shuttleup/static/assets
+ShuttleUp-Codex-Spec-v1.0.zip
+shuttleup-spec
+*.pyc
+__pycache__

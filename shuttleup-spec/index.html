@@ -1,0 +1,2304 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ShuttleUp · 开发规格</title><style>
+:root{--bg:#f7f8f5;--paper:#fff;--ink:#182923;--muted:#5d6d64;--line:#e1e7e2;--accent:#087f72;--soft:#e5f4ef}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:28px}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.8}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}header{padding:44px 48px 30px;border-bottom:1px solid var(--line);background:var(--paper)}.eyebrow{color:var(--accent);font-size:12px;letter-spacing:3px;font-weight:750}header h1{margin:8px 0;font-size:38px;font-weight:720;letter-spacing:-1px}header p{color:var(--muted);max-width:860px;margin:8px 0 16px}.tags{display:flex;gap:8px;flex-wrap:wrap}.tag{background:var(--soft);color:var(--accent);padding:4px 12px;border-radius:30px;font-size:13px}.layout{display:grid;grid-template-columns:268px minmax(0,1fr);max-width:1580px;margin:auto}aside{position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 18px 40px;border-right:1px solid var(--line);font-size:13px}aside a{display:block;padding:5px 10px;border-radius:6px;color:var(--muted)}aside a:hover{background:var(--soft);text-decoration:none;color:var(--accent)}.nav-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:750;color:var(--accent);padding:20px 10px 5px}.lv1{font-weight:650}main{min-width:0;padding:32px 40px 80px}.document{max-width:1120px;margin:0 auto 32px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:40px 46px}.doc-kicker{font-size:12px;color:var(--muted);font-family:ui-monospace,monospace;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:20px}.document h1{font-size:29px;line-height:1.35;margin:12px 0 22px;letter-spacing:-.4px}.document h2{font-size:23px;line-height:1.5;margin:42px 0 16px;padding-top:8px;border-bottom:1px solid var(--line);padding-bottom:8px}.document h3{font-size:18px;line-height:1.5;margin:28px 0 12px}.document p{margin:12px 0}.document li{margin:6px 0}.document ul,.document ol{padding-left:25px}strong{font-weight:700}pre{overflow:auto;padding:20px;border-radius:10px;background:#f2f5f2;border:1px solid var(--line);font-size:13px;line-height:1.65;white-space:pre}code{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-size:.88em;overflow-wrap:anywhere}p code,td code,li code{background:#f0f4f0;border-radius:4px;padding:2px 4px}pre code{font-size:inherit;overflow-wrap:normal}.table-wrap{overflow-x:auto;margin:18px 0}table{width:100%;border-collapse:collapse;min-width:560px;font-size:14px;line-height:1.65}th{background:#eef4ef;text-align:left;font-weight:650}td,th{border:1px solid var(--line);padding:10px 12px;vertical-align:top}tr:nth-child(even) td{background:#fbfcfa}blockquote{border-left:3px solid var(--accent);margin:20px 0;padding:4px 18px;color:var(--muted)}footer{max-width:1120px;margin:0 auto;color:var(--muted);font-size:13px}.mobile-nav{display:none}a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}::selection{background:#cceade}
+@media(max-width:1000px){.layout{grid-template-columns:225px minmax(0,1fr)}main{padding:24px}.document{padding:28px}header{padding:30px}.document h1{font-size:26px}}
+@media(max-width:760px){body{font-size:15px}.layout{display:block}aside{display:none}header{padding:25px 20px}header h1{font-size:30px}main{padding:16px 12px 48px}.document{padding:24px 18px;border-radius:12px}.document h1{font-size:24px}.document h2{font-size:21px}.mobile-nav{display:block;margin-top:16px}.mobile-nav summary{color:var(--accent);font-weight:600;cursor:pointer}.mobile-nav nav{max-height:40vh;overflow:auto;margin-top:12px}.mobile-nav a{display:block;font-size:13px;padding:5px 0}table{font-size:13px}pre{font-size:12px;padding:14px}footer{padding:12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{body{background:white;font-size:10pt}header{padding:0 0 16px}header h1{font-size:25pt}aside,.mobile-nav{display:none}.layout{display:block}main{padding:0}.document{border:0;padding:0;margin:24px 0;max-width:none;break-before:page}.document h2{font-size:16pt;break-after:avoid}.document h3{font-size:12pt;break-after:avoid}pre{white-space:pre-wrap;font-size:8pt;overflow-wrap:anywhere}table{min-width:0;font-size:8pt}tr{break-inside:avoid}.table-wrap{overflow:visible}}
+</style></head><body><header><div class="eyebrow">SHUTTLEUP · BUILD SPECIFICATION</div><h1>把约球这件事做完。</h1><p>从共享空闲时间、选择连续可预约球场，到多人垫付、AA 结算与群内通知。这里定义完整首版的产品行为与实现细节。</p><div class="tags"><span class="tag">版本 1.0 · 2026-09-11</span><span class="tag">32 项需求</span><span class="tag">32 个验收场景</span><span class="tag">M0–M7 开发路线</span></div><details class="mobile-nav"><summary>浏览文档目录</summary><nav><div class="nav-label">开发入口</div><a class="lv1" href="#d0-h1">开发入口 · 概览</a><a class="lv2" href="#d0-h2">直接使用的任务说明</a><a class="lv2" href="#d0-h3">文件顺序</a><a class="lv2" href="#d0-h4">完成时要提供的证据</a><div class="nav-label">产品需求</div><a class="lv1" href="#d1-h1">产品需求 · 概览</a><a class="lv2" href="#d1-h2">1. 产品定义</a><a class="lv2" href="#d1-h3">2. 范围与默认设置</a><a class="lv2" href="#d1-h4">3. 身份与权限</a><a class="lv2" href="#d1-h8">4. 完整用户旅程</a><a class="lv2" href="#d1-h9">5. 时间系统</a><a class="lv2" href="#d1-h14">6. 活动、候选与参加确认</a><a class="lv2" href="#d1-h20">7. 场地来源与实时更新</a><a class="lv2" href="#d1-h25">8. 到场、费用与分账</a><a class="lv2" href="#d1-h32">9. AstrBot 集成</a><a class="lv2" href="#d1-h37">10. 活动与账单状态</a><a class="lv2" href="#d1-h40">11. 页面与视觉规范</a><a class="lv2" href="#d1-h45">12. 验收场景</a><a class="lv2" href="#d1-h46">13. 交付完成定义</a><a class="lv2" href="#d1-h47">14. 外部行为依据</a><div class="nav-label">系统设计</div><a class="lv1" href="#d2-h1">系统设计 · 概览</a><a class="lv2" href="#d2-h2">1. 技术决策</a><a class="lv2" href="#d2-h6">2. 项目结构与现有骨架迁移</a><a class="lv2" href="#d2-h7">3. 通用数据约定</a><a class="lv2" href="#d2-h8">4. 数据模型</a><a class="lv2" href="#d2-h15">5. 身份、请求与事务</a><a class="lv2" href="#d2-h18">6. 状态转换和业务服务</a><a class="lv2" href="#d2-h21">7. 时间引擎与 WakeUp</a><a class="lv2" href="#d2-h25">8. 场地 Provider、刷新与候选生成</a><a class="lv2" href="#d2-h30">9. 账务算法与不可变账单</a><a class="lv2" href="#d2-h36">10. HTTP API 契约</a><a class="lv2" href="#d2-h44">11. 实时事件与通知投递</a><a class="lv2" href="#d2-h48">12. AstrBot 插件与 Bot API</a><a class="lv2" href="#d2-h54">13. 前端实现与视觉规格</a><a class="lv2" href="#d2-h61">14. 测试与验收数据</a><a class="lv2" href="#d2-h66">15. 运行、部署与性能预算</a><a class="lv2" href="#d2-h70">16. Codex 分阶段实施计划</a><a class="lv2" href="#d2-h71">17. 核心一致性检查表</a><a class="lv2" href="#d2-h72">18. 外部依据与联调记录</a></nav></details></header><div class="layout"><aside aria-label="文档目录"><div class="nav-label">开发入口</div><a class="lv1" href="#d0-h1">开发入口 · 概览</a><a class="lv2" href="#d0-h2">直接使用的任务说明</a><a class="lv2" href="#d0-h3">文件顺序</a><a class="lv2" href="#d0-h4">完成时要提供的证据</a><div class="nav-label">产品需求</div><a class="lv1" href="#d1-h1">产品需求 · 概览</a><a class="lv2" href="#d1-h2">1. 产品定义</a><a class="lv2" href="#d1-h3">2. 范围与默认设置</a><a class="lv2" href="#d1-h4">3. 身份与权限</a><a class="lv2" href="#d1-h8">4. 完整用户旅程</a><a class="lv2" href="#d1-h9">5. 时间系统</a><a class="lv2" href="#d1-h14">6. 活动、候选与参加确认</a><a class="lv2" href="#d1-h20">7. 场地来源与实时更新</a><a class="lv2" href="#d1-h25">8. 到场、费用与分账</a><a class="lv2" href="#d1-h32">9. AstrBot 集成</a><a class="lv2" href="#d1-h37">10. 活动与账单状态</a><a class="lv2" href="#d1-h40">11. 页面与视觉规范</a><a class="lv2" href="#d1-h45">12. 验收场景</a><a class="lv2" href="#d1-h46">13. 交付完成定义</a><a class="lv2" href="#d1-h47">14. 外部行为依据</a><div class="nav-label">系统设计</div><a class="lv1" href="#d2-h1">系统设计 · 概览</a><a class="lv2" href="#d2-h2">1. 技术决策</a><a class="lv2" href="#d2-h6">2. 项目结构与现有骨架迁移</a><a class="lv2" href="#d2-h7">3. 通用数据约定</a><a class="lv2" href="#d2-h8">4. 数据模型</a><a class="lv2" href="#d2-h15">5. 身份、请求与事务</a><a class="lv2" href="#d2-h18">6. 状态转换和业务服务</a><a class="lv2" href="#d2-h21">7. 时间引擎与 WakeUp</a><a class="lv2" href="#d2-h25">8. 场地 Provider、刷新与候选生成</a><a class="lv2" href="#d2-h30">9. 账务算法与不可变账单</a><a class="lv2" href="#d2-h36">10. HTTP API 契约</a><a class="lv2" href="#d2-h44">11. 实时事件与通知投递</a><a class="lv2" href="#d2-h48">12. AstrBot 插件与 Bot API</a><a class="lv2" href="#d2-h54">13. 前端实现与视觉规格</a><a class="lv2" href="#d2-h61">14. 测试与验收数据</a><a class="lv2" href="#d2-h66">15. 运行、部署与性能预算</a><a class="lv2" href="#d2-h70">16. Codex 分阶段实施计划</a><a class="lv2" href="#d2-h71">17. 核心一致性检查表</a><a class="lv2" href="#d2-h72">18. 外部依据与联调记录</a></aside><main><article class="document"><div class="doc-kicker">00-CODEX-START.md</div><h1 id="d0-h1">给 Codex 的开发入口</h1>
+<p>项目：ShuttleUp，一个从多人约球到 AA 结清的轻量 Web 应用。</p>
+<h2 id="d0-h2">直接使用的任务说明</h2>
+<p>请实现本目录的 <code>01-PRD.md</code> 和 <code>02-SYSTEM-DESIGN.md</code>。先完整阅读两份文档，再检查现有代码、项目级开发指令和工作区状态。文档确定的业务规则、状态、金额单位、权限、接口和视觉令牌是实现基线；现有早期骨架与其冲突时，按照设计文档的迁移说明修改，不保留两套实现。</p>
+<p>按系统设计 M0–M7 顺序进行纵向开发，每阶段同时打通界面、服务、数据和测试。每阶段完成一次可以实际使用的业务切片并提交，再继续下一阶段。目标是完成所有需求，不是在搭出页面骨架、写出接口名称或通过少量单元测试后结束。</p>
+<p>技术栈固定为 FastAPI、Vue 3/TypeScript、SQLite、SSE。生产只部署一个应用服务和数据卷；前端构建后由后端同域提供。沿模块划分组织代码，只有课表、场地和 Bot 接入设外部契约，不搭建额外的分布式基础设施。</p>
+<p>用户体验按手机优先设计。实现设计令牌、候选卡片、可触屏操作的时间表和个人账单主视图，不套用通用后台模板。每个页面只突出当前主要操作，复杂任务进入对应抽屉或页面。390px 手机端必须能完成全部核心流程。</p>
+<p>每个阶段运行相关测试、类型检查和构建，并记录真实结果。阶段记录写入 <code>docs/IMPLEMENTATION-STATUS.md</code>，包含完成的需求编号、使用方法、测试结果和外部联调状态。重用固定测试时钟、金额黄金样例与真实 API E2E，不能用前端硬编码模拟已完成的业务。</p>
+<p>真实外部接入需要项目使用方指定首个场馆网站，并提供联调时有效的 WakeUp 分享口令。先完成协议、页面和样本测试，拿到输入后完成真实适配；两项真实联调必须单独验收。AstrBot 插件交付全部 PRD 指令、账号与群绑定以及主动通知，不只留下一个空接口。</p>
+<p>工作区已有未提交文件时，只操作 ShuttleUp 相关内容，不覆盖其他项目修改。若当前环境不能创建或推送 GitHub 仓库，保留本地完整代码与提交，并准确记录发布状态；不能声称已经推送。</p>
+<p>最终交付应包括运行代码、锁文件、迁移、前端构建、AstrBot 插件、真实场馆适配器、测试、容器启动与备份恢复说明，以及逐项验收结果。</p>
+<h2 id="d0-h3">文件顺序</h2>
+<p><code>01-PRD.md</code> 解释做什么、业务如何闭环、页面怎样使用、什么结果算完成。</p>
+<p><code>02-SYSTEM-DESIGN.md</code> 定义技术实现、数据表、算法、API、事件、Bot 协议、视觉规格、部署和分阶段开发顺序。</p>
+<p>文档的 JSON 使用可读别名作为示例实体 ID，实际数据库使用 UUID；示例域名不是已经接入的网站。带 <code>...</code> 的 Python 片段表示待实现的接口签名，不是完成代码。</p>
+<h2 id="d0-h4">完成时要提供的证据</h2>
+<p>完整四人活动的创建、加入、匹配、订场、到场、分账、付款、收款与归档结果；一次取消后结算与退款结果；两浏览器实时同步；真实 WakeUp 导入与真实场馆查询；实际 AstrBot 指令与主动消息；手机／桌面截图；测试和包体／内存预算的实测结果。</p>
+</article><article class="document"><div class="doc-kicker">01-PRD.md</div><h1 id="d1-h1">ShuttleUp · 产品需求文档</h1>
+<p>版本：1.0 · 2026-09-11<br />
+交付目标：可以供真实球友从约时间一直用到结清账款的 Web 应用。<br />
+配套文件：<code>02-SYSTEM-DESIGN.md</code> 定义技术实现；<code>00-CODEX-START.md</code> 定义开发执行方式。</p>
+<h2 id="d1-h2">1. 产品定义</h2>
+<p>ShuttleUp 把一场羽毛球活动中的时间协调、场地选择、参加确认和 AA 结算放在同一条流程里。用户不需要在群里逐个询问时间，不需要整理多张课表，也不需要打完后手算每个人给谁多少钱。群聊保留讨论功能，Web 保存活动事实，AstrBot 负责群内操作和主动通知。</p>
+<p>产品主界面围绕三个问题展开：<strong>哪场球需要我处理、这场球现在定到哪一步、我还需要付多少钱。</strong> 共同时间表是辅助决策工具，候选方案和下一步操作才是活动页的视觉中心。</p>
+<p>V1 指完整首版，不是仅有演示页面的原型。各阶段可以分别提交，但最终应覆盖本文所有标有需求编号的条目。</p>
+<h2 id="d1-h3">2. 范围与默认设置</h2>
+<p>V1 包含简易账户与访客、WakeUp 口令导入、周期与一次性忙闲、活动邀请和权限、多人时间匹配、场地 Provider、候选方案、手动订场确认、实际到场、费用与分账、付款确认、历史活动、AstrBot 插件及部署。</p>
+<p>产品服务一个部署实例中的若干球友群，不引入组织、企业租户或复杂角色体系。支付在用户现有的微信、支付宝等工具里完成，本产品记录账款；预约在场馆原网站完成，本产品查询余量并记录订单。自动抢场、收款通道、社区匹配、积分和战绩不属于 V1。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>设置</th>
+<th>初始值与含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>显示语言</td>
+<td>简体中文</td>
+</tr>
+<tr>
+<td>实例默认时区</td>
+<td><code>Asia/Shanghai</code>；活动保存自己的 IANA 时区</td>
+</tr>
+<tr>
+<td>币种</td>
+<td>V1 固定人民币 CNY，金额精确到分</td>
+</tr>
+<tr>
+<td>约球范围</td>
+<td>默认未来 7 天；单次搜索最多 14 天</td>
+</tr>
+<tr>
+<td>允许时间</td>
+<td>默认每天 18:00–22:00，可修改为多个时段</td>
+</tr>
+<tr>
+<td>时长、人数、场数</td>
+<td>默认 120 分钟、最少 4 人、最多 6 人、1 块场</td>
+</tr>
+<tr>
+<td>共同时间显示</td>
+<td>15 分钟视觉网格；实际计算保留分钟精度</td>
+</tr>
+<tr>
+<td>场地费、球单价</td>
+<td>由部署管理员设置全局默认值；活动可覆盖</td>
+</tr>
+<tr>
+<td>课程之外的时间</td>
+<td>默认未知；由用户明确设置自己的可约时间窗</td>
+</tr>
+<tr>
+<td>游客</td>
+<td>默认允许通过邀请链接加入</td>
+</tr>
+</tbody>
+</table></div>
+<p>这些初始值是界面预填，不是写死在计算逻辑中的业务常量。</p>
+<h2 id="d1-h4">3. 身份与权限</h2>
+<h3 id="d1-h5">R-AUTH-01 简易身份</h3>
+<p>打开邀请链接可以先看活动标题、主持人昵称、日期范围、人数和活动状态。点击“加入”，输入昵称即创建访客身份并加入活动；同一浏览器再次访问使用原身份，不重复创建成员。首次加入后直接进入活动页中的“我的时间”操作。</p>
+<p>正式账户使用用户名和密码，不依赖短信或邮件服务。访客可以为当前身份设置用户名和密码，升级后保持同一用户 ID，保留课表、活动和账款。登录其他已有账户是切换身份，不根据相同昵称自动合并账户。Bot 绑定同一用户 ID。</p>
+<h3 id="d1-h6">R-AUTH-02 角色</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>未加入者</th>
+<th>普通成员</th>
+<th>活动主持人</th>
+<th>实例管理员</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>查看邀请摘要、加入</td>
+<td>有邀请链接时可</td>
+<td>可</td>
+<td>可</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>查看活动详情与公共忙闲</td>
+<td>不可</td>
+<td>可</td>
+<td>可</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>修改本人时间、参加回应</td>
+<td>不可</td>
+<td>可</td>
+<td>可</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>选定方案、记录订场、确定名单</td>
+<td>不可</td>
+<td>不可</td>
+<td>可</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>录入本人垫付的费用</td>
+<td>不可</td>
+<td>可</td>
+<td>可</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>代他人记账、调整承担人、出账</td>
+<td>不可</td>
+<td>不可</td>
+<td>可</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>声明付款</td>
+<td>不可</td>
+<td>仅本人应付款</td>
+<td>仅本人应付款</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>确认收款</td>
+<td>不可</td>
+<td>仅本人收款</td>
+<td>仅本人收款</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>转交主持人、移除成员、取消活动</td>
+<td>不可</td>
+<td>不可</td>
+<td>可</td>
+<td>按活动身份</td>
+</tr>
+<tr>
+<td>设置全局费率、配置场馆来源</td>
+<td>不可</td>
+<td>不可</td>
+<td>不可</td>
+<td>可</td>
+</tr>
+</tbody>
+</table></div>
+<p>每场活动恰好一个主持人。创建者自动成为主持人并加入；主持人可以转交给一位现有成员。邀请链接只授予加入权限，不授予主持人权限。管理员不是所有活动的业务主持人。</p>
+<h3 id="d1-h7">R-AUTH-03 链接与隐私</h3>
+<p>邀请链接可以复制、关闭和重新生成；重新生成不影响已加入成员。课程名称、教室、教师、原始 WakeUp 口令不进入活动共享数据。成员可见活动日期范围内各人的“空闲／繁忙／未知”，看不到其他人的私人日程原因。已退出或被移除成员仍可查看与自己有关的账款并完成收付，但不能继续读取活动实时安排或修改其他业务。</p>
+<h2 id="d1-h8">4. 完整用户旅程</h2>
+<p>主持人创建活动并分享链接，成员加入并选择使用已有时间表、导入 WakeUp 或直接划选时间。系统同时取得场地余量，展示可约候选。主持人选定时间、场馆和拟参加人员，再去场馆网站预约，回来登记已订场及实付场地费。成员对确定的活动回应参加或不参加。</p>
+<p>打球结束，主持人核对实际到场者，大家录入自己垫付的球钱和其他支出，主持人检查分摊范围并发布账单。系统生成具体转账指令；付款人标记已付，收款人确认收到，所有净余额为零后账单结清。活动归档，完整记录仍可查看。</p>
+<p>取消活动也沿用同一账务流程：没有支出则直接结束；已有不可退费用或退款则核对费用后结算。取消不等于债务消失。</p>
+<h2 id="d1-h9">5. 时间系统</h2>
+<h3 id="d1-h10">R-TIME-01 时间由规则组成</h3>
+<p>用户可以设置一份个人基础时间表，并在单场活动中做局部调整。所有结果分为 <code>free</code>、<code>busy</code>、<code>unknown</code>，未填写不能被统计为确定空闲。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>优先级，从高到低</th>
+<th>规则</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>40</td>
+<td>仅本活动的一次性设置</td>
+<td>这次约球周六 19:00–20:00 不来</td>
+</tr>
+<tr>
+<td>30</td>
+<td>个人一次性设置</td>
+<td>9 月 19 日下午临时有事</td>
+</tr>
+<tr>
+<td>20</td>
+<td>个人周期设置</td>
+<td>每周三 18:00–22:00 有空</td>
+</tr>
+<tr>
+<td>10</td>
+<td>WakeUp 导入的课程繁忙</td>
+<td>第 1、3、5 周周三下午有课</td>
+</tr>
+<tr>
+<td>0</td>
+<td>用户确认的基础可约时间窗</td>
+<td>本学期每天 09:00–22:00 没课时可约</td>
+</tr>
+<tr>
+<td>默认</td>
+<td>未知</td>
+<td>以上规则均未覆盖</td>
+</tr>
+</tbody>
+</table></div>
+<p>同一优先级重叠时以最后保存的规则为准；删除覆盖规则后重新显露下层规则。手动周期设置有意高于课程，例如用户可以把某门不需到场的课对应时段标为有空。界面在编辑时标明“将覆盖课程推导结果”。</p>
+<p>“未知”是可主动设置的状态，用于撤回先前的确定答复。“清除本次标记”则是删除覆盖，二者不能混为一谈。</p>
+<h3 id="d1-h11">R-TIME-02 WakeUp 导入</h3>
+<p>用户粘贴完整分享文字或其中的口令，应用获取共享课表后先显示预览：学期起始周、学期范围、节次时间、课程繁忙区间和课程数量。用户核对后点击“使用这份课表”，课程转为繁忙规则。</p>
+<p>导入必须正确处理开学日期、星期、单双周、明确周次、起始节次和连续节数；日期已确定的临时调课直接使用具体日期。跨午休的两段课程按真实节次时间处理，不把中间休息误记为上课。</p>
+<p>导入后，应用引导用户明确“哪些时间范围内没课就可以约球”。这一设置与预览一起提交，不能把整天所有非上课时间自动当作空闲。</p>
+<p>重新导入采用替换同一课表来源的方式，保留个人手动规则和活动局部规则，不重复叠加课程。导入是一次性快照，不通过旧口令持续刷新。WakeUp 官方用户说明支持分享口令导入，官方隐私说明称分享数据在一定时间后失效，因此界面文案使用“导入”，不用“持续同步”。[S1][S2]</p>
+<h3 id="d1-h12">R-TIME-03 周期与一次性编辑</h3>
+<p>个人时间页提供周视图。桌面可以拖选，手机可以点击起点和终点，再选择空闲、繁忙或未知；不以长按拖拽作为唯一输入方式。支持按星期重复、限定生效日期，以及某天的明确起止时间。跨午夜输入拆成相邻两天的区间保存。</p>
+<p>从活动页编辑默认“仅本次约球”，提供显式开关“同时加入我的个人时间表”。活动取消或结束不修改个人时间表。</p>
+<h3 id="d1-h13">R-TIME-04 共同时间</h3>
+<p>活动页展示每个区间的确定空闲人数、未知人数、繁忙人数；可以筛选全员空闲、达到最低人数，以及某些指定成员均有空的区间。统计对象是当前未退出、未被移除的活动成员，不因最大参加人数而隐藏多余的空闲者。</p>
+<p>“6 人有空，计划选 4 人”是一种正常结果，主持人选定最终拟参加名单。核心成员必须覆盖整个活动时长。课程或规则变化实时改变候选结果，但不会自行改动已经订好的活动。</p>
+<h2 id="d1-h14">6. 活动、候选与参加确认</h2>
+<h3 id="d1-h15">R-ACT-01 创建与编辑</h3>
+<p>活动包含标题、日期范围、允许时段、时长、人数上下限、所需场数、核心成员、按偏好排序的场馆集合、可选的决定截止时间及费用默认值。表单首屏只展示标题、日期、时长和场馆，其他字段收在“更多设置”内。</p>
+<p>创建后立即获得活动邀请链接。可以复制上次活动作为新活动，复用设置，不复制旧的参加承诺、费用、付款和订场记录。创建、编辑、加入、退出和主持人转交应有简短的活动记录。</p>
+<h3 id="d1-h16">R-ACT-02 候选方案</h3>
+<p>一个可预约候选由完整时段、一个场馆、满足数量的连续可用球场，以及有空成员集合构成。用户必须在整个时段内都空闲；球场必须在整个时段内都可用。V1 默认不允许用“前一小时 1 号场、后一小时 2 号场”拼出同一块连续场地。</p>
+<p>正常推荐至少满足最低人数、所有核心成员和所需场数。人数不足或余量不确定的组合放入“其他时间”，与正常候选分开，不用同样的“可以约”标签。</p>
+<p>排序按确定规则依次比较：可参加人数多者优先（最多计到活动人数上限）、主持人的场馆偏好、已知的场地总价较低者优先、开始时间较早者优先。价格未知排在相同条件下价格已知的候选之后。规则是可解释的排序，不使用模糊的星级或隐藏权重。</p>
+<p>候选卡片显示日期、起止时间、场馆、连续可用场数、确定空闲人数、缺席或未知的核心成员、估计场地总价及余量更新时间。默认展开前三个方案，允许查看全部。</p>
+<h3 id="d1-h17">R-ACT-03 选定方案与拟参加名单</h3>
+<p>主持人选择候选后，确认本次拟参加人员；人数应在上下限内，包含所有核心成员。名单和方案形成快照，活动进入“待订场”。其他成员仍可看到活动，但不因自己也有空就自动成为已确认参加者。</p>
+<p>拟参加者可以回应“参加／不参加”。“参加”同时为该时段增加一条仅本活动的空闲确认；“不参加”改变本次回应，并撤销此前由“参加”自动生成的空闲确认，不删除用户手工规则。更换候选时旧回应及其自动空闲确认失效，新方案重新收集回应。等候中的其他成员可由主持人补入名单。</p>
+<p>时间上有空、在拟参加名单中、已经回应参加、实际到场是四个不同事实。</p>
+<h3 id="d1-h18">R-ACT-04 订场</h3>
+<p>待订场页提供预约网站入口和可复制的时间、场馆、球场信息。订场完成后主持人输入实际球场、起止时间、订场人、实付金额、实际垫付人和可选的订单编号／备注；允许一场活动记录多块场地的多个订单。</p>
+<p>保存已订场记录后，只有当已确认订单覆盖选定的完整时段和所需场数，活动才进入“已确定”。记录订单与记录垫付款分开：只有明确“已支付”的金额才生成实际场地费用。未付款订单只展示预计支出。</p>
+<p>重复提交同一笔付款不能重复生成费用。确认后展示固定结果卡及一键复制群消息。场馆余量变成 0 可能正是本次预约造成的，不因此宣布本次订场失败。</p>
+<h3 id="d1-h19">R-ACT-05 调整、结束与取消</h3>
+<p>待订场时可重新选择方案；已确定后调整时间、场馆或所需场数，进入明确的“改约”流程，保留旧订单记录并说明旧订单如何处理，再建立新计划和新回应。系统不自动操作场馆退款。</p>
+<p>活动结束后主持人点击“结束并核对到场”，进入已结束状态。取消活动需要一条简短原因，保留订单、已支出费用和付款记录。完成账务后可归档。未结清活动在历史列表中继续显示“待结账”。</p>
+<h2 id="d1-h20">7. 场地来源与实时更新</h2>
+<h3 id="d1-h21">R-VEN-01 标准场地信息</h3>
+<p>场馆来源统一输出场馆、球场标识、起止时间、余量状态、完整预约单元的价格、预约入口和本次查询时间。状态区分可预约、不可预约、尚未放号、未知；价格未知和价格为零不能混同。</p>
+<p>同一场馆同一天的查询由服务端集中完成，多个活动和多个浏览器共享结果。页面不能因为打开人数增加而对场馆网站逐人轮询。</p>
+<h3 id="d1-h22">R-VEN-02 连续性与真实性</h3>
+<p>来源如果提供具体球场，系统按同一球场判断连续时间。如果来源只提供每个时段的总余量，但不能证明球场连续可用，页面展示“有余量，需核实连续场”，不能将其作为已验证的连续场地候选。</p>
+<p>每次结果显示“最近成功更新于……”及来源。超过该来源约定的新鲜期，余量展示为待刷新，并退出已验证可预约候选；不把获取失败解释成没有场地。</p>
+<h3 id="d1-h23">R-VEN-03 刷新节奏</h3>
+<p>活动收集时间或待订场，且有人查看活动页时，默认每 30 秒请求一次来源；无人查看时默认 120 秒。实际周期不得短于来源配置允许的最小间隔。已确定活动不再持续轮询其已订时段；除非还在补场或改约。</p>
+<p>用户可以点击刷新，按钮显示此次共享查询结果。来源数据真正发生变化后，再推送给活动页面；没有变化只更新查询时间，不反复发送群消息。</p>
+<h3 id="d1-h24">R-VEN-04 接入交付</h3>
+<p>交付统一 Provider 协议、管理员场馆配置、可编辑的人工场地源、一个标准 JSON 来源适配器，以及首个目标场馆网站的真实适配器。人工场地源服务于电话预约、线下留场等本来就没有在线接口的场景。</p>
+<p>首个真实适配器的验收包含实际网站响应样本、解析测试和一次真实查询记录。目标网站地址需要由项目使用方指定；演示来源不计作真实网站接入完成。</p>
+<h2 id="d1-h25">8. 到场、费用与分账</h2>
+<h3 id="d1-h26">R-MONEY-01 全局费率与活动快照</h3>
+<p>管理员维护默认每场每小时场地费、默认每只羽毛球价格及可选的球型号；场馆可覆盖场地费，活动可覆盖两项费用。优先级为活动覆盖、场馆费率、全局默认。创建活动时保存本次默认值快照，之后调整全局设置不改变旧活动。</p>
+<p>场地预计费用等于每场小时价 × 场数 × 时长；球费等于单价 × 用球数。实际支付金额可直接覆盖估计。全局设置不是一笔实际费用，预计金额不能提前算成某人已垫款。</p>
+<h3 id="d1-h27">R-MONEY-02 实际到场</h3>
+<p>成员可以自行标记到场／缺席；主持人在出账前核对所有拟参加者，并可补记临时来的成员。临时成员采用主持人添加的活动专用昵称档案，可参与分账，之后通过主持人提供的认领链接绑定自己的身份。</p>
+<p>默认公共费用由实际到场者承担，不根据名单或“曾经有空”自动收费。每笔费用均可指定承担人，支持未到场者只分摊不可退场地费等约定。出账前界面明确显示这种分摊，不设置隐藏的迟到或缺席罚款规则。</p>
+<p>V1 按人均分或明确指定金额；不自动按打球分钟数、水平或场上轮换时间收费。</p>
+<h3 id="d1-h28">R-MONEY-03 费用录入</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>快捷录入</th>
+<th>默认承担人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>场地费</td>
+<td>订单实付，或手工金额</td>
+<td>实际到场者</td>
+</tr>
+<tr>
+<td>球钱</td>
+<td>单价 × 只数，或手工总额</td>
+<td>实际到场者</td>
+</tr>
+<tr>
+<td>额外 AA</td>
+<td>名称、金额</td>
+<td>实际到场者</td>
+</tr>
+<tr>
+<td>指定人员支出</td>
+<td>名称、金额、承担人</td>
+<td>所选人员</td>
+</tr>
+</tbody>
+</table></div>
+<p>每笔费用记录实际垫付人、金额、类别、说明和分摊方式。付款给商家的垫付，与球友之间的结算转账是两种记录。普通成员可以录入自己垫付的费用，主持人可以代录并保留操作者信息。</p>
+<p>分摊方式支持“所选人均分”和“每人指定金额”；指定金额之和必须等于该笔费用金额。录入时选择“实际到场者”可暂存为动态范围；发布账单时展开为确定的人和确定到分的金额。</p>
+<p>退费作为关联原费用的负向费用记录，填写实际收到退款的人；默认按原费用承担比例退回，支持调整明确金额。多次退款的总额不超过原支出。只有已经实际退回的款项才能记作退款。</p>
+<h3 id="d1-h29">R-MONEY-04 分摊与净额</h3>
+<p>全部金额用分计算，均分余下的 1 分按成员加入顺序依次分配。例如 100 元由三人承担，结果为 33.34、33.33、33.33 元；不会出现费用总额与分摊总额差 1 分的情况。</p>
+<p>每个人有三个基本数值：垫付净额、应承担净额、已确认的球友间转账。正余额表示还应收款，负余额表示还应付款。系统抵消相互欠款后生成简化转账指令，不要求每个人都先把钱交给主持人。</p>
+<p>以下为固定验收样例：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>支出</th>
+<th>垫付人</th>
+<th>承担人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>场地 120 元</td>
+<td>A</td>
+<td>A、B、C、D 均分</td>
+</tr>
+<tr>
+<td>球 48 元</td>
+<td>B</td>
+<td>A、B、C、D 均分</td>
+</tr>
+<tr>
+<td>停车 20 元</td>
+<td>C</td>
+<td>A、C 均分</td>
+</tr>
+</tbody>
+</table></div>
+<p>正确结果为 A 应收 68 元、B 应收 6 元、C 应付 32 元、D 应付 42 元。一组确定的转账方案为 D → A 42 元、C → A 26 元、C → B 6 元。该样例替代此前对话中不准确的算账示例。</p>
+<h3 id="d1-h30">R-MONEY-05 发布与收款</h3>
+<p>账单编辑时可以实时预览，发布前主持人核对到场者、费用、承担人及分摊结果。发布后形成不可变的账单版本，推送“账单已出”。没有待转账净额的账单直接结清。</p>
+<p>付款人对一条转账指令填写本次支付金额，默认填剩余金额，允许部分支付；记录进入“待收款确认”。只有指定收款人可以确认收到，确认后才冲抵欠款。收款人可退回错误的付款声明，付款人可撤回尚未确认的声明。</p>
+<p>确认收款不重新打乱当前账单剩余转账指令。全部余额清零后自动标记已结清。账单页始终优先显示“我应付给谁／谁应付给我”，其次显示完整费用明细。</p>
+<h3 id="d1-h31">R-MONEY-06 账单更正</h3>
+<p>主持人可以重新打开账单修正费用。已有待确认付款时先完成确认或撤回，再开始修订；重新打开后暂停旧账单新增付款声明。已确认的真实转账保留，新版本在这些已发生转账的基础上重新计算剩余应收应付。</p>
+<p>已结清后收到场馆退款也使用同一机制，不修改历史已确认收款，不把旧转账当作未发生。活动取消、重新出账、归档不会删除已确认付款事实。</p>
+<h2 id="d1-h32">9. AstrBot 集成</h2>
+<h3 id="d1-h33">R-BOT-01 统一业务入口</h3>
+<p>本项目按 <strong>AstrBot</strong> 接入。Web 是业务数据源，插件负责识别指令、建立消息身份映射、调用业务 API 和发送通知。插件不另算账、不独立保存一份活动状态，不使用大模型猜测金额或直接执行含糊命令。AstrBot 官方支持指令组和通过统一消息来源 UMO 主动发送消息。[S3][S4]</p>
+<p>群聊可以关联多个活动，但每个群设置一个“当前活动”。命令可附 <code>--活动 活动短号</code> 指向其他活动。短号只用于定位，不能替代加入权限。</p>
+<h3 id="d1-h34">R-BOT-02 身份与群绑定</h3>
+<p>网页生成短时单次账号绑定码，用户私聊 Bot 执行绑定。之后 Bot 从消息平台的真实发送者 ID 映射到 Web 用户，而不是从昵称判断身份。主持人在网页生成群绑定码，再在目标群执行“关联”，建立通知目标和当前活动。群绑定码不授予操作者主持人身份。</p>
+<p>未绑定用户执行写命令时，Bot 给出绑定入口；读取当前活动公开群摘要不强制绑定。课程口令的导入在 Web 中完成，Bot 的“课表”命令打开相应页面。</p>
+<h3 id="d1-h35">R-BOT-03 指令表</h3>
+<p>下列参数中的日期接受 <code>YYYY-MM-DD</code>，时段接受 <code>HH:mm-HH:mm</code>；解析结果回复中展示完整日期和活动时区。<code>--个人</code> 表示同时影响个人时间表，否则忙闲命令只作用于当前活动。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>行为</th>
+<th>权限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/羽球 帮助</code></td>
+<td>列出常用指令及示例</td>
+<td>所有人</td>
+</tr>
+<tr>
+<td><code>/羽球 绑定 绑定码</code></td>
+<td>私聊绑定当前 Web 身份</td>
+<td>绑定码持有人</td>
+</tr>
+<tr>
+<td><code>/羽球 关联 群绑定码</code></td>
+<td>关联本群和活动、设为当前活动</td>
+<td>主持人</td>
+</tr>
+<tr>
+<td><code>/羽球 创建 标题</code></td>
+<td>用默认设置创建活动，返回编辑和分享链接</td>
+<td>已绑定用户</td>
+</tr>
+<tr>
+<td><code>/羽球 活动</code></td>
+<td>列出本群活动</td>
+<td>群内用户</td>
+</tr>
+<tr>
+<td><code>/羽球 切换 活动短号</code></td>
+<td>切换群的当前活动</td>
+<td>该活动主持人</td>
+</tr>
+<tr>
+<td><code>/羽球 当前</code></td>
+<td>显示当前状态、时间地点、人数及下一步</td>
+<td>群内用户</td>
+</tr>
+<tr>
+<td><code>/羽球 加入 [活动短号]</code></td>
+<td>加入已有群关联的活动</td>
+<td>已绑定用户</td>
+</tr>
+<tr>
+<td><code>/羽球 退出</code></td>
+<td>退出活动，保留历史账款</td>
+<td>成员，主持人先转交</td>
+</tr>
+<tr>
+<td><code>/羽球 课表</code></td>
+<td>打开自己的课表导入和编辑页</td>
+<td>已绑定用户</td>
+</tr>
+<tr>
+<td><code>/羽球 有空 日期 时段 [--个人]</code></td>
+<td>新增明确空闲区间</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 没空 日期 时段 [--个人]</code></td>
+<td>新增明确繁忙区间</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 时间</code></td>
+<td>展示满足人数的共同时间摘要</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 推荐</code></td>
+<td>展示前三个候选和稳定的候选短号</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 场地</code></td>
+<td>展示余量及最近更新时间</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 选择 候选短号</code></td>
+<td>打开该方案的名单确认页</td>
+<td>主持人</td>
+</tr>
+<tr>
+<td><code>/羽球 已订</code></td>
+<td>打开实际订单和付款登记页</td>
+<td>主持人</td>
+</tr>
+<tr>
+<td><code>/羽球 参加</code>、<code>/羽球 不参加</code></td>
+<td>回应该次选定方案</td>
+<td>拟参加者</td>
+</tr>
+<tr>
+<td><code>/羽球 到场</code>、<code>/羽球 缺席</code></td>
+<td>更新自己的到场记录</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 记账 场地 金额</code></td>
+<td>以本人为垫付人新增场地费用</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 记账 球 数量个</code></td>
+<td>按本次球单价记用球支出</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 记账 球费 金额</code></td>
+<td>直接记球费总额</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 记账 AA 金额 说明</code></td>
+<td>录入公共额外支出</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 记账 指定 金额 说明</code></td>
+<td>打开指定承担人表单，预填金额</td>
+<td>成员</td>
+</tr>
+<tr>
+<td><code>/羽球 账单</code></td>
+<td>返回本人应收应付及账单入口</td>
+<td>成员；个账私聊展示</td>
+</tr>
+<tr>
+<td><code>/羽球 已付 转账短号 [金额]</code></td>
+<td>提交付款声明；省略金额表示剩余款</td>
+<td>对应付款人</td>
+</tr>
+<tr>
+<td><code>/羽球 收款 付款声明短号</code></td>
+<td>确认已收到该次付款</td>
+<td>对应收款人</td>
+</tr>
+<tr>
+<td><code>/羽球 结算</code></td>
+<td>打开到场核对、账单预览和发布页</td>
+<td>主持人</td>
+</tr>
+<tr>
+<td><code>/羽球 结束</code>、<code>/羽球 取消</code></td>
+<td>打开对应确认页</td>
+<td>主持人</td>
+</tr>
+</tbody>
+</table></div>
+<p>指向网页的命令只生成对应操作入口，不在用户尚未确认时先修改状态。记账和付款命令返回费用／付款短号及明细，便于核对。复杂分摊、主持人转交和改约在 Web 完成。</p>
+<h3 id="d1-h36">R-BOT-04 主动通知</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>投递与合并规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新活动</td>
+<td>群内发送一次邀请摘要</td>
+</tr>
+<tr>
+<td>新成员加入／退出</td>
+<td>30 秒内同活动合并为一条进度消息</td>
+</tr>
+<tr>
+<td>首次出现满足约束的方案</td>
+<td>群内发送最佳方案；同活动相似推荐 5 分钟内不重复</td>
+</tr>
+<tr>
+<td>已选但未订的方案失去场地</td>
+<td>立即通知一次；余量普通波动不逐次播报</td>
+</tr>
+<tr>
+<td>订场确认／正式改约／取消</td>
+<td>立即发送固定结果与链接</td>
+</tr>
+<tr>
+<td>活动开始提醒</td>
+<td>默认提前 2 小时，只发送一次</td>
+</tr>
+<tr>
+<td>到决定截止时间</td>
+<td>给主持人发送一次待处理提醒，不自动取消</td>
+</tr>
+<tr>
+<td>账单发布／修订</td>
+<td>群内发总额与账单链接；个人欠款私聊查看</td>
+</tr>
+<tr>
+<td>收款已确认</td>
+<td>通知对应付款人；不逐笔刷群</td>
+</tr>
+<tr>
+<td>全部结清</td>
+<td>群内发送一次完成消息</td>
+</tr>
+</tbody>
+</table></div>
+<p>通知可在活动设置中关闭或重新绑定目标群。通知正文不包含课程明细、口令、密码或收款账号。未读通知在 Web 的活动记录与“需要我处理”列表中可见。</p>
+<h2 id="d1-h37">10. 活动与账单状态</h2>
+<h3 id="d1-h38">R-STATE-01 活动状态</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>状态</th>
+<th>用户可理解的含义</th>
+<th>主要下一步</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>collecting</code></td>
+<td>正在收集时间并选方案</td>
+<td>完善时间／选择方案</td>
+</tr>
+<tr>
+<td><code>booking</code></td>
+<td>方案已选，订单覆盖尚未完成</td>
+<td>记录订场／重选</td>
+</tr>
+<tr>
+<td><code>confirmed</code></td>
+<td>所需球场已订好</td>
+<td>回应参加／查看集合信息</td>
+</tr>
+<tr>
+<td><code>finished</code></td>
+<td>打球已结束</td>
+<td>核对到场／结算</td>
+</tr>
+<tr>
+<td><code>cancelled</code></td>
+<td>不再进行本次活动</td>
+<td>处理已经发生的费用</td>
+</tr>
+</tbody>
+</table></div>
+<p>“正在打球”由当前时间和确认状态推导显示，不增加一个需要点击切换的数据库状态。“已归档”是展示标记，不混入活动业务状态。<code>selected</code> 合并进 <code>booking</code>，账务状态从活动中独立出来。</p>
+<h3 id="d1-h39">R-STATE-02 账单状态</h3>
+<p><code>draft → issued → settled</code>，分别表示编辑中、已发布待结清、已结清。主持人发起修订可从 <code>issued</code> 或 <code>settled</code> 回到 <code>draft</code>，保留历史版本和已确认转账。已结束或已取消的活动都可以出账。</p>
+<p>一个活动的完整闭环是：活动已结束或取消，账单已结清，主持人归档。没有任何费用也要完成“无费用结清”，不能留下意义不明的永久待结算。</p>
+<h2 id="d1-h40">11. 页面与视觉规范</h2>
+<h3 id="d1-h41">R-UI-01 页面结构</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>页面</th>
+<th>内容重点</th>
+<th>唯一主要操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>首页 <code>/</code></td>
+<td>我正在参与、需要回应、待收付款、历史入口</td>
+<td>发起约球</td>
+</tr>
+<tr>
+<td>邀请页 <code>/i/:token</code></td>
+<td>简明活动摘要，昵称输入</td>
+<td>加入活动</td>
+</tr>
+<tr>
+<td>活动页 <code>/a/:id</code></td>
+<td>候选或已订结果、成员、下一步</td>
+<td>随活动阶段变化</td>
+</tr>
+<tr>
+<td>我的时间 <code>/me/time</code></td>
+<td>WakeUp 导入、周视图、一次性规则</td>
+<td>保存时间</td>
+</tr>
+<tr>
+<td>账单 <code>/a/:id/bill</code></td>
+<td>我的应收应付、费用、付款进度</td>
+<td>付款声明／确认收款／出账</td>
+</tr>
+<tr>
+<td>个人设置 <code>/me</code></td>
+<td>账户、昵称、Bot 绑定</td>
+<td>保存设置</td>
+</tr>
+<tr>
+<td>实例设置 <code>/settings</code></td>
+<td>全局费率、场馆及来源配置</td>
+<td>保存配置</td>
+</tr>
+</tbody>
+</table></div>
+<p>活动页内部用“安排／成员／费用”三个标签，而不是不断跳转。时间编辑、记费用、确认订场等局部任务使用侧栏或底部抽屉。手机底部保留一个当前阶段的主要操作按钮。</p>
+<h3 id="d1-h42">R-UI-02 视觉语言</h3>
+<p>界面应像一个认真设计的日常工具，而不是后台管理系统。浅暖灰背景、白色内容面、深色文字，以低饱和青绿色强调可以行动的内容。使用系统中文字体和数字等宽特性，不请求远程字体。背景不使用大面积渐变，页面不放装饰性统计图。</p>
+<p>桌面内容最大宽度 1200px，主体与侧栏约 2:1；手机单列，边距 16px。卡片圆角 16px，输入控件与按钮圆角 10px，主要按钮高度 44px。标题、日期、金额有明确层级，普通说明不争夺注意力。</p>
+<p>候选卡片最显眼的是“周六 18:00–20:00”和“5 人可来”，场馆及价格次之；更新时只改变相关数据，不整块闪烁或重新排序到用户点不到的位置。账单最显眼的是“你还需向 A 支付 ¥42.00”，不先展示一张大总账表。</p>
+<h3 id="d1-h43">R-UI-03 时间与交互</h3>
+<p>空闲、繁忙、未知使用颜色加文字或纹理区分；共同时间的深浅表示空闲人数，并保留精确人数标签。桌面支持七日视图，手机默认单日／三日切换，整页不横向溢出。</p>
+<p>输入时间时提供直接输入和快捷选择，编辑费用时自动聚焦金额。变更后展示短暂的“已保存”；订场确认、出账和取消使用具体按钮文案。普通设置保存不再弹出二次确认。</p>
+<p>加载使用对应内容形状的轻量占位，空页面给一个明确入口，例如“导入课表”或“标记可约时间”。键盘可完成弹窗操作；正文达到正常阅读对比度，触控目标至少 44px，动画约 150ms 并尊重减少动画设置。</p>
+<h3 id="d1-h44">R-UI-04 轻量化预算</h3>
+<p>首次进入活动页，生产包初始 JavaScript 目标不超过 180KB gzip，CSS 不超过 30KB gzip；课表编辑和管理页按路由加载。正常 Web 运行不需要浏览器自动化进程。性能指标是交付时测量的预算，不是未测试的性能声明。</p>
+<h2 id="d1-h45">12. 验收场景</h2>
+<p>以下用例必须进入自动测试或记录明确的人工验收结果；技术文档给出实现阶段对应关系。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>场景与期望</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A01</td>
+<td>主持人创建活动、访客链接加入、刷新页面；身份与成员数不重复</td>
+</tr>
+<tr>
+<td>A02</td>
+<td>访客升级账户后，课表、主持人身份和账款仍属于原用户</td>
+</tr>
+<tr>
+<td>A03</td>
+<td>普通成员尝试选方案、代他人确认收款；服务端拒绝</td>
+</tr>
+<tr>
+<td>A04</td>
+<td>WakeUp 奇数周课程只在相应周繁忙，连续节次按真实节次时间展开</td>
+</tr>
+<tr>
+<td>A05</td>
+<td>重导课程不重复；覆盖来源的课程更新，手动例外保留</td>
+</tr>
+<tr>
+<td>A06</td>
+<td>未设置基础可约窗时，没课的时间显示未知而非空闲</td>
+</tr>
+<tr>
+<td>A07</td>
+<td>周期空闲被一次性繁忙截断；删除临时规则后恢复；活动局部覆盖不影响别场</td>
+</tr>
+<tr>
+<td>A08</td>
+<td>5 人中 4 人有空但一位核心成员无空，不能成为正常推荐</td>
+</tr>
+<tr>
+<td>A09</td>
+<td>6 人有空、最大 4 人；显示 6 人可选并让主持人选 4 人</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>18–19 点只有 1 号场、19–20 点只有 2 号场；不产生连续 2 小时候选</td>
+</tr>
+<tr>
+<td>A11</td>
+<td>需要 2 块场，但仅 1 块全程可用；不显示满足场地约束</td>
+</tr>
+<tr>
+<td>A12</td>
+<td>仅聚合余量无法证明连续性；显示待核实而非确定可约</td>
+</tr>
+<tr>
+<td>A13</td>
+<td>两浏览器同时查看，同一来源同一天每轮只查询一次；变更同步到两者</td>
+</tr>
+<tr>
+<td>A14</td>
+<td>来源过期退出已验证候选；最后成功查询时间仍可见</td>
+</tr>
+<tr>
+<td>A15</td>
+<td>选定方案不等于已订；多订单合起来覆盖所需场数后才确认</td>
+</tr>
+<tr>
+<td>A16</td>
+<td>已订后来源显示无余量，不自动取消已经登记的预约</td>
+</tr>
+<tr>
+<td>A17</td>
+<td>有空者未回应仍显示待回应；改约后旧回应不复用</td>
+</tr>
+<tr>
+<td>A18</td>
+<td>实际缺席者默认不分公共费用，但可被指定分摊不可退场地费</td>
+</tr>
+<tr>
+<td>A19</td>
+<td>100 元三人均分精确得到 33.34、33.33、33.33 元</td>
+</tr>
+<tr>
+<td>A20</td>
+<td>本文 120+48+20 样例得到 68、6、-32、-42 元净额</td>
+</tr>
+<tr>
+<td>A21</td>
+<td>订单未付款不产生垫付；登记已付款只产生一笔场地支出</td>
+</tr>
+<tr>
+<td>A22</td>
+<td>付款人声称已付不立即结清，指定收款人确认后才冲抵</td>
+</tr>
+<tr>
+<td>A23</td>
+<td>42 元欠款先付 20、再付 22，剩余金额与双方显示一致</td>
+</tr>
+<tr>
+<td>A24</td>
+<td>出账后修订保留历史版本和已确认转账，不再次要求支付已付部分</td>
+</tr>
+<tr>
+<td>A25</td>
+<td>已结清后收到退款，修订账单产生反向返款任务</td>
+</tr>
+<tr>
+<td>A26</td>
+<td>活动取消但有费用时，仍能完整结清和归档</td>
+</tr>
+<tr>
+<td>A27</td>
+<td>Bot 以真实平台身份操作，同昵称不能冒领；重复消息只记一次费用</td>
+</tr>
+<tr>
+<td>A28</td>
+<td>Bot 多活动群明确切换，指定短号命令不误操作另一场活动</td>
+</tr>
+<tr>
+<td>A29</td>
+<td>场地普通波动不刷群，已选未订候选失效和账单发布各发一次</td>
+</tr>
+<tr>
+<td>A30</td>
+<td>390px 手机、1280px 桌面完成创建到结清；无页面级横向溢出</td>
+</tr>
+<tr>
+<td>A31</td>
+<td>重启服务后，活动、课表、账单、已确认付款和待投递通知仍存在</td>
+</tr>
+<tr>
+<td>A32</td>
+<td>首个真实场馆来源与真实 WakeUp 分享分别完成联调并保留脱敏样本</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="d1-h46">13. 交付完成定义</h2>
+<p>完整交付包含可运行的前后端、数据库迁移、AstrBot 插件、真实场馆适配器、自动化测试、生产构建、容器启动方式和操作说明。测试数据、假余量和本地演示账号只能存在于显式的开发／测试模式。</p>
+<p>验收必须跑完至少一场四人约球：其中两人导入或复用时间表，一人手工填时间，一人临时修改；产生候选并完成订场，出现至少两位垫付人和一笔指定人员费用，完成分账、部分付款、收款确认和归档。另做一次取消后退费的账务验证。</p>
+<p>需要项目使用方提供的外部联调输入只有两项：首个目标场馆网站及必要的正常查询授权；一份当时有效的 WakeUp 分享口令。AstrBot 联调使用实际部署的 Bot 地址与平台配置。开发阶段用固定脱敏样本推进，真实接入在交付清单中独立验收。</p>
+<h2 id="d1-h47">14. 外部行为依据</h2>
+<p>资料核对日期：2026-09-11。以下仅支撑外部产品能力与限制，本文其他规则是 ShuttleUp 的产品定义。</p>
+<ul>
+<li>[S1] WakeUp 官方《导入课表》：支持从分享口令导入。<code>https://www.wakeup.fun/doc/import_schedule.html</code></li>
+<li>[S2] WakeUp 官方隐私说明：在线分享内容具有失效时间。<code>https://www.wakeup.fun/policy.html</code></li>
+<li>[S3] AstrBot 官方《处理消息事件》：消息身份、指令和指令组。<code>https://docs.astrbot.app/dev/star/guides/listen-message-event.html</code></li>
+<li>[S4] AstrBot 官方《消息的发送》：UMO 与主动发送。<code>https://docs.astrbot.app/dev/star/guides/send-message.html</code></li>
+</ul>
+</article><article class="document"><div class="doc-kicker">02-SYSTEM-DESIGN.md</div><h1 id="d2-h1">ShuttleUp · 系统设计与实现规格</h1>
+<p>版本：1.0 · 2026-09-11<br />
+规范性配套：<code>01-PRD.md</code>。本文是实现约定，字段、金额、状态与接口均以本文为准。<br />
+目标：单机轻量部署、手机优先、美观、模块边界清楚，按纵向功能切片持续交付。</p>
+<h2 id="d2-h2">1. 技术决策</h2>
+<h3 id="d2-h3">1.1 一套代码、一个运行服务</h3>
+<p>采用 <strong>FastAPI + Vue 3 / TypeScript + SQLite</strong> 的模块化单体。前端经 Vite 构建为静态文件，按需导入并拆分路由包，由 FastAPI 同域提供；生产环境只运行一个 Python 服务和一个 SQLite 数据目录。AstrBot 插件安装到用户已有 Bot 中，调用该服务。</p>
+<pre><code class="language-text">浏览器 ── REST 写入 / 查询 + SSE 更新 ─┐
+                                      │
+AstrBot 插件 ── Bot API / 通知长轮询 ───┤ FastAPI 单进程
+                                      │  ├─ 身份、活动、时间、订场、账务
+场馆网站 ←── Provider 定时查询 ─────────┤  ├─ 外部适配器与轻量后台循环
+WakeUp   ←── 分享导入适配器 ────────────┘  └─ SQLite + 静态前端
+</code></pre>
+<p>后端业务用同步 SQLAlchemy 2 会话与短事务，HTTP 来源查询用 <code>httpx.AsyncClient</code>。后台循环在 FastAPI lifespan 中启动和关闭；这是 FastAPI 官方支持的资源生命周期入口。[T1] 普通同步路由在线程池内执行，异步后台任务通过 <code>asyncio.to_thread</code> 调用同步数据库服务，避免阻塞 SSE。</p>
+<p>SSE 只负责服务端到浏览器的变更通知，客户端操作仍用 HTTP。浏览器原生 EventSource 提供事件 ID 与重连机制，不需要为单向同步增加 WebSocket 协议和客户端依赖。[T2]</p>
+<h3 id="d2-h4">1.2 依赖与约束</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>部分</th>
+<th>选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>3.12；运行镜像检验实际 SQLite 库版本</td>
+</tr>
+<tr>
+<td>Web</td>
+<td>FastAPI、Uvicorn、Pydantic 2</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>SQLAlchemy 2、Alembic、SQLite WAL</td>
+</tr>
+<tr>
+<td>网络、认证</td>
+<td>httpx、argon2-cffi</td>
+</tr>
+<tr>
+<td>前端</td>
+<td>Vue 3 Composition API、TypeScript、Vue Router、Vite；按需打包 [T7]</td>
+</tr>
+<tr>
+<td>样式</td>
+<td>原生 CSS 变量 + scoped CSS，按需 SVG 图标</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>pytest、httpx 测试客户端、Vitest、Playwright E2E</td>
+</tr>
+<tr>
+<td>依赖锁</td>
+<td><code>uv.lock</code>、<code>package-lock.json</code>；生产与 CI 使用锁文件</td>
+</tr>
+</tbody>
+</table></div>
+<p>不引入 Redis、Celery、消息队列、单独 Node 服务、微服务或全套后台 UI 框架。时间表用 CSS Grid 和本项目组件实现。Playwright 是开发测试依赖；仅当某个真实网站确实必须执行浏览器脚本时，才为该 Provider 单独增加可选运行依赖。</p>
+<p>SQLite 开启 <code>foreign_keys=ON</code>、<code>journal_mode=WAL</code>、<code>busy_timeout=5000</code>、<code>synchronous=FULL</code>。WAL 允许读写并行，但同一时刻仍只有一个写者，因此事务内不做网络请求。[T3] 使用本机数据卷，生产默认一个 Uvicorn worker。SQLite 采用 3.51.3 或更高的受支持版本，以包含官方记录的 WAL-reset 修复；镜像构建时实际检查 <code>sqlite3.sqlite_version</code>，不能仅依据 Python 版本推断。[T3]</p>
+<h3 id="d2-h5">1.3 扩展点只放在真正变化的位置</h3>
+<p>外部课表由 <code>ScheduleImporter</code> 适配；外部场地由 <code>VenueProvider</code> 适配；Bot 通过独立版本化 HTTP 契约接入。候选排序和分摊是可独立测试的纯函数。新场馆只增加 Provider 和配置，新 Bot 只增加适配插件，不修改活动和账务表结构。</p>
+<p>后端模块之间调用明确的服务函数，不为每一张表建立抽象 Repository 基类，也不做动态插件市场。SQLAlchemy 模型不进入外部 Provider，HTTP Request 不进入纯算法。</p>
+<h2 id="d2-h6">2. 项目结构与现有骨架迁移</h2>
+<pre><code class="language-text">shuttleup/
+├── pyproject.toml, uv.lock
+├── Dockerfile, compose.yaml, .env.example
+├── backend/
+│   ├── shuttleup/
+│   │   ├── app.py, config.py, db.py, cli.py
+│   │   ├── auth/           # models, schemas, service, routes
+│   │   ├── activities/     # 活动、成员、方案、订场
+│   │   ├── availability/   # 规则、课程导入、纯区间算法
+│   │   ├── venues/         # 查询协调、快照、Provider
+│   │   ├── billing/        # 费用、纯分摊、账单、付款
+│   │   ├── integrations/   # bot_api、身份绑定、通知
+│   │   └── realtime/       # events、SSE、后台循环
+│   ├── migrations/
+│   └── tests/              # unit、integration、fixtures
+├── frontend/
+│   ├── src/
+│   │   ├── api/            # fetch、OpenAPI 生成类型
+│   │   ├── components/     # 基础组件与少量领域组件
+│   │   ├── composables/    # session、activity、events
+│   │   ├── pages/
+│   │   └── styles/         # tokens.css、base.css
+│   └── tests/
+├── plugins/astrbot_plugin_shuttleup/
+│   ├── main.py, metadata.yaml, _conf_schema.json
+│   └── tests/
+├── docs/                   # 本文、PRD、开发进度、来源协议说明
+└── scripts/                # 数据导入、验收种子、备份命令入口
+</code></pre>
+<p>模块初始以 <code>models.py / schemas.py / service.py / routes.py</code> 组织，文件复杂后再拆分，不预建大量空目录。根目录现有 <code>backend/shuttleup/domain.py</code>、<code>availability.py</code>、<code>settlement.py</code> 是早期骨架，保留有价值的测试并迁移，不因已有枚举而沿用过度串联的状态机。</p>
+<p>已检查的骨架需要调整：活动状态分离账务状态；金额由 Decimal 对象改为整数分；分配规则不再“每人四舍五入后把全部漂移丢给一个人”。后者在 2 分钱四人分摊时可能让一人承担负数，新算法固定为商与余数分配。原先四个单元测试不能代替完整产品验收。更新 README 与旧 <code>docs/architecture.md</code>，避免存在两套相冲突的规格。</p>
+<h2 id="d2-h7">3. 通用数据约定</h2>
+<p>实体主键为 UUID 字符串，便于 SQLite 与未来其他关系库共用；用户可见短号为独立唯一字段，不能用于授权。事件序号使用数据库自增整数。所有 UTC 时刻在持久层统一保存为 Unix 毫秒 <code>INTEGER</code>，API 输出带偏移的 RFC 3339 字符串。日期使用 <code>YYYY-MM-DD</code>，当地钟点使用 <code>HH:mm</code>；周期规则另存 IANA <code>timezone</code>。</p>
+<p>时间区间统一为左闭右开 <code>[start,end)</code>，必须 <code>end &gt; start</code>。金额字段后缀 <code>_cents</code>，类型为有符号整数；单笔支出上限 100,000,000 分，正向支出必须大于零，退款小于零。API 不用 JSON 浮点数表示金额。零价是合法报价，但无实付不生成支出。</p>
+<p>可编辑记录带 <code>created_at</code>、<code>updated_at</code>、<code>created_by</code>、<code>version</code>。以下表中省略这些通用字段；快照表只追加不覆盖，事件表不使用业务版本号。外键默认限制删除，活动、费用以状态或 <code>voided_at</code> 保留业务历史。</p>
+<h2 id="d2-h8">4. 数据模型</h2>
+<p>下列是必须落实到迁移中的逻辑表定义。JSON 仅用于小型配置和不可变快照；权限、归属、状态、时间索引和金额保留独立列。</p>
+<h3 id="d2-h9">4.1 用户与设置</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>字段与约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>users</code></td>
+<td><code>id PK</code>、<code>display_name</code>、<code>username NULL UNIQUE</code>、<code>password_hash NULL</code>、<code>is_admin BOOL</code>、<code>timezone</code>、<code>availability_revision INT DEFAULT 0</code>、<code>disabled_at NULL</code>。用户名保存规范化小写值；访客没有用户名和密码</td>
+</tr>
+<tr>
+<td><code>sessions</code></td>
+<td><code>id PK</code>、<code>token_hash UNIQUE</code>、<code>csrf_hash</code>、<code>user_id FK</code>、<code>expires_at</code>。会话只存 token 的哈希</td>
+</tr>
+<tr>
+<td><code>app_settings</code></td>
+<td><code>id PK CHECK id=1</code>、<code>timezone</code>、<code>court_hourly_cents NULL</code>、<code>shuttle_unit_cents NULL</code>、<code>shuttle_label NULL</code>、<code>guest_join_enabled BOOL</code></td>
+</tr>
+<tr>
+<td><code>one_time_tokens</code></td>
+<td><code>id PK</code>、<code>token_hash UNIQUE</code>、<code>purpose</code>、<code>user_id FK NULL</code>、<code>activity_id FK NULL</code>、<code>participant_id FK NULL</code>、<code>expires_at</code>、<code>consumed_at NULL</code>。purpose=<code>bot_bind/group_bind/participant_claim</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>访客升级只为同一 <code>users.id</code> 设置凭据。主持人补记的临时球友也创建无会话的访客用户，因此所有费用始终关联到 <code>participant_id</code>，不需要第二套“纯文本债务人”。认领通过一次性 token 将这位临时球友的活动参与记录绑定到当前用户，participant_id 保持不变；同活动已有该用户时返回 MEMBER_ALREADY_EXISTS，由主持人在出账前整理重复档案，不自动合并已发布账单里的身份。</p>
+<h3 id="d2-h10">4.2 时间规则</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>字段与约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schedule_imports</code></td>
+<td><code>id PK</code>、<code>user_id FK</code>、<code>provider_key</code>、<code>label</code>、<code>term_start_date</code>、<code>term_end_date</code>、<code>timezone</code>、<code>payload_hash</code>、<code>occurrence_count</code>、<code>imported_at</code>；<code>UNIQUE(user_id,provider_key,label)</code>，存导入元数据，不保存口令</td>
+</tr>
+<tr>
+<td><code>availability_rules</code></td>
+<td><code>id PK</code>、<code>user_id FK</code>、<code>activity_id FK NULL</code>、<code>import_id FK NULL</code>、<code>origin_plan_id FK NULL</code>、<code>source</code>、<code>state</code>、<code>kind</code>、<code>start_at/end_at NULL</code>、<code>recurrence JSON NULL</code>、<code>edit_seq INT</code>。<code>kind=once</code> 必须有区间；<code>kind=weekly</code> 必须有 recurrence；<code>source=activity</code> 必须有 activity_id</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>source</code> 枚举为 <code>baseline/course/weekly/one_off/activity</code>，优先级对应 PRD 的 0/10/20/30/40。course 只能由导入服务生成且 state=busy；外部请求不能自带 priority 或替他人设置规则。课程导入保存展开后的实际区间，kind=once；用户的基础可约窗与每周设置保存 kind=weekly。导入生效的一次事务同时替换旧课程规则和增加 <code>availability_revision</code>。</p>
+<p><code>edit_seq</code> 使用用户的 <code>availability_revision</code>：每次保存一批规则先递增一次 revision，同一批中不允许有互相矛盾的重叠规则；比较优先级相同的规则时按 <code>edit_seq</code>，无需依赖毫秒时间戳打破并发并列。</p>
+<pre><code class="language-json">{
+  &quot;weekdays&quot;: [1, 3, 5],
+  &quot;start_time&quot;: &quot;18:00&quot;,
+  &quot;end_time&quot;: &quot;22:00&quot;,
+  &quot;valid_from&quot;: &quot;2026-09-07&quot;,
+  &quot;valid_until&quot;: &quot;2027-01-24&quot;,
+  &quot;timezone&quot;: &quot;Asia/Shanghai&quot;
+}
+</code></pre>
+<p>星期一为 1，星期日为 7；<code>valid_until</code> 日期包含在内。跨午夜规则在应用层拆成两条。索引为 <code>(user_id,activity_id)</code>、<code>(user_id,start_at,end_at)</code>、<code>import_id</code>。</p>
+<h3 id="d2-h11">4.3 活动与订单</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>字段与约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>activities</code></td>
+<td><code>id PK</code>、<code>short_code UNIQUE</code>、<code>title</code>、<code>host_user_id FK</code>、<code>status</code>、<code>timezone</code>、<code>date_from/date_to</code>、<code>daily_windows JSON</code>、<code>duration_minutes</code>、<code>min_players/max_players</code>、<code>court_count</code>、<code>venue_preferences JSON</code>、<code>decision_deadline NULL</code>、<code>invite_nonce</code>、<code>invite_token_hash UNIQUE NULL</code>、<code>invite_enabled</code>、<code>price_defaults JSON</code>、<code>current_plan_id FK NULL</code>、<code>billing_status DEFAULT draft</code>、<code>bill_generation INT DEFAULT 0</code>、<code>current_bill_id FK NULL</code>、<code>archived_at NULL</code>、<code>cancel_reason NULL</code></td>
+</tr>
+<tr>
+<td><code>participants</code></td>
+<td><code>id PK</code>、<code>activity_id FK</code>、<code>user_id FK</code>、<code>display_name</code>、<code>join_order INT</code>、<code>membership=active/left/removed</code>、<code>required BOOL</code>、<code>rsvp=pending/yes/no</code>、<code>rsvp_plan_id FK NULL</code>、<code>attendance=unknown/present/absent</code>、<code>attendance_verified BOOL</code>；<code>UNIQUE(activity_id,user_id)</code>、<code>UNIQUE(activity_id,join_order)</code></td>
+</tr>
+<tr>
+<td><code>activity_plans</code></td>
+<td><code>id PK</code>、<code>activity_id FK</code>、<code>plan_no</code>、<code>starts_at/ends_at</code>、<code>venue_id FK</code>、<code>court_ids JSON</code>、<code>roster_participant_ids JSON</code>、<code>candidate_fingerprint</code>、<code>snapshot JSON</code>、<code>selected_by FK</code>；<code>UNIQUE(activity_id,plan_no)</code>；不可变</td>
+</tr>
+<tr>
+<td><code>bookings</code></td>
+<td><code>id PK</code>、<code>activity_id FK</code>、<code>plan_id FK</code>、<code>venue_id FK</code>、<code>court_ids JSON</code>、<code>starts_at/ends_at</code>、<code>external_order_no NULL</code>、<code>booker_participant_id FK</code>、<code>status=confirmed/cancelled</code>、<code>quoted_total_cents NULL</code>、<code>paid_total_cents DEFAULT 0</code>、<code>payer_participant_id FK NULL</code>、<code>note NULL</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>人数约束：<code>2 &lt;= min_players &lt;= max_players &lt;= 30</code>；场数 1–8；时长 30–360 分钟且为 15 分钟整数倍。date_to 包含在搜索日期范围中，总跨度不超过 14 天。daily_windows 是星期与钟点数组，格式与 recurrence 的星期/钟点部分一致。venue_preferences 为不重复的场馆 ID 有序数组。</p>
+<p><code>price_defaults</code> 保存 <code>global_court_hourly_cents</code>、<code>venue_hourly_cents</code>（venue_id→费率）、<code>court_hourly_override_cents</code>、<code>shuttle_unit_cents</code>、<code>shuttle_label</code>。估算某馆时依次取活动显式 override、该馆快照费率、全局快照费率；后续管理员调价不影响此快照。活动全局 <code>version</code> 覆盖配置、成员与计划等可协作数据的变更。候选不建数据库表：由活动、时间规则、来源快照即时生成；只有选定结果存 <code>activity_plans</code>。</p>
+<p>同一订单的每次实际付款记录为关联 <code>booking_id</code> 的正向费用；<code>bookings.paid_total_cents</code> 由这些费用计算或事务内维护，不由客户端单独随意修改。分次付款可产生多笔支出，确保实际垫付人准确。可选订单号在同场馆、非空时建立唯一约束，人工无订单号允许留空。</p>
+<h3 id="d2-h12">4.4 场馆与来源</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>字段与约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provider_configs</code></td>
+<td><code>id PK</code>、<code>key UNIQUE</code>、<code>adapter_key</code>、<code>label</code>、<code>config JSON</code>、<code>credential_env NULL</code>、<code>min_poll_seconds</code>、<code>min_request_interval_seconds</code>、<code>fresh_for_seconds</code>、<code>enabled BOOL</code>。真实凭据从命名环境变量读取，不返回浏览器</td>
+</tr>
+<tr>
+<td><code>venues</code></td>
+<td><code>id PK</code>、<code>provider_id FK</code>、<code>external_venue_id</code>、<code>name</code>、<code>address</code>、<code>timezone</code>、<code>booking_url</code>、<code>hourly_rate_cents NULL</code>、<code>enabled BOOL</code>；<code>UNIQUE(provider_id,external_venue_id)</code></td>
+</tr>
+<tr>
+<td><code>venue_snapshots</code></td>
+<td><code>id PK</code>、<code>venue_id FK</code>、<code>local_date</code>、<code>revision INT</code>、<code>content_hash</code>、<code>slots JSON</code>、<code>coverage JSON</code>、<code>last_success_at NULL</code>、<code>last_attempt_at</code>、<code>next_poll_at</code>、<code>last_error_code NULL</code>、<code>reported_stale_at NULL</code>；<code>UNIQUE(venue_id,local_date)</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>一张快照保存一天少量时段，以统一 JSON 契约描述，适合整日查询及连续性计算。新快照只替换已声明完整覆盖的查询窗口；来源只返回部分信息时，不删除其他窗口。重复抓取内容相同只更新查询时刻，不增加 <code>revision</code>；达到过期时间也必须触发一次候选失效通知。</p>
+<h3 id="d2-h13">4.5 费用、账单与付款</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>字段与约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>expenses</code></td>
+<td><code>id PK</code>、<code>short_code UNIQUE</code>、<code>activity_id FK</code>、<code>kind=venue/shuttle/extra/refund</code>、<code>description</code>、<code>amount_cents</code>、<code>payer_participant_id FK</code>、<code>split_mode=equal/exact</code>、<code>split_scope=attendees/selected</code>、<code>quantity NULL</code>、<code>unit_price_cents NULL</code>、<code>booking_id FK NULL</code>、<code>refund_of_id FK NULL</code>、<code>voided_at NULL</code></td>
+</tr>
+<tr>
+<td><code>expense_shares</code></td>
+<td><code>id PK</code>、<code>expense_id FK</code>、<code>participant_id FK</code>、<code>exact_amount_cents NULL</code>；<code>UNIQUE(expense_id,participant_id)</code>。equal 只记录范围，exact 保存明确金额；动态 attendees 的草稿暂不写行</td>
+</tr>
+<tr>
+<td><code>bill_revisions</code></td>
+<td><code>id PK</code>、<code>activity_id FK</code>、<code>revision_no</code>、<code>source_generation</code>、<code>snapshot JSON</code>、<code>total_cents</code>、<code>published_by FK</code>、<code>published_at</code>；<code>UNIQUE(activity_id,revision_no)</code>；不可变</td>
+</tr>
+<tr>
+<td><code>payment_claims</code></td>
+<td><code>id PK</code>、<code>short_code UNIQUE</code>、<code>activity_id FK</code>、<code>bill_revision_id FK</code>、<code>transfer_id</code>、<code>from_participant_id FK</code>、<code>to_participant_id FK</code>、<code>amount_cents &gt; 0</code>、<code>status=claimed/confirmed/rejected/withdrawn</code>、<code>claimed_at</code>、<code>confirmed_at NULL</code>、<code>resolved_by_user_id FK NULL</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><code>transfer_id</code> 在 bill snapshot 内唯一，用 <code>(bill_revision_id,transfer_id)</code> 定位。它不是另一个可修改的总账表。每条转账指令同时最多有一个未解决的 claimed 记录；对该 pair 建立条件唯一索引。所有确认过的 payment_claims 在后续修订中继续参与余额计算。</p>
+<p>所有 payer、share、from、to 必须属于同一 activity，不能仅靠存在某个 UUID 就接受。<code>bill_generation</code> 在费用、到场核对、承担范围变更时递增；账单预览携带此 generation，发布时核对。发布后费用不可直接修改，先调用 reopen。</p>
+<h3 id="d2-h14">4.6 Bot、事件与幂等</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>字段与约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bot_identities</code></td>
+<td><code>id PK</code>、<code>bot_key</code>、<code>platform_id</code>、<code>sender_id</code>、<code>user_id FK</code>、<code>private_umo NULL</code>；<code>UNIQUE(bot_key,platform_id,sender_id)</code></td>
+</tr>
+<tr>
+<td><code>bot_contexts</code></td>
+<td><code>id PK</code>、<code>bot_key</code>、<code>umo</code>、<code>label</code>、<code>current_activity_id FK NULL</code>；<code>UNIQUE(bot_key,umo)</code></td>
+</tr>
+<tr>
+<td><code>bot_activity_links</code></td>
+<td><code>id PK</code>、<code>context_id FK</code>、<code>activity_id FK</code>、<code>notifications_enabled BOOL</code>；<code>UNIQUE(context_id,activity_id)</code></td>
+</tr>
+<tr>
+<td><code>events</code></td>
+<td><code>seq INTEGER PK AUTOINCREMENT</code>、<code>event_id UNIQUE</code>、<code>type</code>、<code>activity_id FK NULL</code>、<code>owner_user_id FK NULL</code>、<code>actor_user_id FK NULL</code>、<code>resource_version INT</code>、<code>payload JSON</code>、<code>occurred_at</code>、<code>processed_at NULL</code></td>
+</tr>
+<tr>
+<td><code>notifications</code></td>
+<td><code>id PK</code>、<code>event_seq FK NULL</code>、<code>dedupe_key UNIQUE</code>、<code>target_type=user/bot_context</code>、<code>target_user_id FK NULL</code>、<code>target_context_id FK NULL</code>、<code>payload JSON</code>、<code>state=pending/leased/sent/failed</code>、<code>available_at</code>、<code>lease_until NULL</code>、<code>lease_token_hash NULL</code>、<code>attempts</code>、<code>delivered_at NULL</code>、<code>read_at NULL</code></td>
+</tr>
+<tr>
+<td><code>operation_keys</code></td>
+<td><code>id PK</code>、<code>scope</code>、<code>key</code>、<code>request_hash</code>、<code>response_status</code>、<code>response JSON</code>、<code>expires_at</code>；<code>UNIQUE(scope,key)</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>索引重点：活动主持人与状态、成员用户与活动、费用 activity_id、付款 activity_id/status、events(seq)/processed_at、notifications(state,available_at)。所有状态变更和对应事件在同一数据库事务提交。事件是变更通知和轻量审计，不是 event-sourcing；当前状态仍由正常业务表读取。</p>
+<h2 id="d2-h15">5. 身份、请求与事务</h2>
+<h3 id="d2-h16">5.1 Web 身份</h3>
+<p>服务端生成 256-bit 随机会话 token，Cookie 为 HttpOnly、SameSite=Lax，生产启用 Secure。有效期 30 天，活跃访问续期。用户名 3–32 个字母、数字或下划线，密码至少 10 个字符，使用 Argon2id。邀请为可重新生成的高熵能力链接：创建时生成 128-bit invite_nonce，token 为 <code>base64url(HMAC-SHA256(APP_SECRET,&quot;invite:&quot; + activity_id + &quot;:&quot; + invite_nonce))</code>，数据库存 nonce 和 token 哈希。主持人读取邀请时服务端可重建同一链接；rotate 更换 nonce 并更新哈希。</p>
+<p>会话 Cookie 命名为 shuttleup_session，Path=/。CSRF token 由 <code>base64url(HMAC-SHA256(APP_SECRET,&quot;csrf:&quot; + raw_session_cookie))</code> 派生，服务端可在读取当前 Cookie 后重建，不需要反查哈希原文。</p>
+<p><code>GET /api/v1/session</code> 返回当前用户与当前会话 CSRF token；写请求校验 <code>X-CSRF-Token</code> 和同源 Origin。创建会话的注册／访客／登录请求校验 Origin。Web 页面不保存 Bearer token 到 localStorage。Bot 使用独立服务 token 和独立路由，不复用浏览器 Cookie。</p>
+<p>首次管理员由 CLI <code>shuttleup admin create</code> 创建；全局设置只接受管理员操作。主持人身份通过 <code>activities.host_user_id</code> 查询。所有资源权限在服务函数中判断，Web 与 Bot 调用同一函数。已退出／被移除成员仍可以访问本人的账款投影和涉及本人的付款接口；这些权限不重新开放整场活动、成员时间表或活动 SSE。</p>
+<h3 id="d2-h17">5.2 修改版本与幂等</h3>
+<p>客户端的可编辑表单提交 <code>expected_version</code>。服务端执行条件更新，版本不一致返回 409 和当前版本，前端刷新受影响表单并保留用户输入。不引入通用 CRDT 或协同文本编辑。</p>
+<p>费用创建、订单付款登记、账单发布、付款声明和确认收款携带 <code>Idempotency-Key</code>。同一 scope/key 同请求返回原结果；同 key 不同内容返回 409。scope 包含 actor_id 与操作类型。Bot 使用平台 message_id 派生 key，避免平台重发产生双重支出。幂等结果与业务写入在一个事务提交，保留 30 天。</p>
+<p>事务只包含：权限、版本、业务写入、事件和必要通知记录。课表拉取、场馆查询与 IM 投递都在事务之外执行。同步 SQLAlchemy Session 不能跨线程传递；进入线程时创建、退出时关闭。</p>
+<h2 id="d2-h18">6. 状态转换和业务服务</h2>
+<h3 id="d2-h19">6.1 活动状态</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>服务函数</th>
+<th>起点 → 终点</th>
+<th>前置条件与写入</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_activity</code></td>
+<td>无 → collecting</td>
+<td>创建 host participant、价格快照、邀请 token</td>
+</tr>
+<tr>
+<td><code>select_plan</code></td>
+<td>collecting/booking → booking</td>
+<td>正常候选仍有效；名单满足人数与核心成员；新增 plan，重置计划相关 rsvp</td>
+</tr>
+<tr>
+<td><code>clear_plan</code></td>
+<td>booking → collecting</td>
+<td>当前计划没有仍有效的订单；移除 current_plan 指向</td>
+</tr>
+<tr>
+<td><code>record_booking</code></td>
+<td>booking → booking/confirmed</td>
+<td>保存真实订单；覆盖所需完整时段和固定场数后 confirmed</td>
+</tr>
+<tr>
+<td><code>begin_reschedule</code></td>
+<td>confirmed → booking/confirmed</td>
+<td>旧订单逐笔标记取消或明确迁移到新计划；新增计划、重置 rsvp</td>
+</tr>
+<tr>
+<td><code>finish_activity</code></td>
+<td>confirmed → finished</td>
+<td>主持人结束；保留未核对到场项</td>
+</tr>
+<tr>
+<td><code>cancel_activity</code></td>
+<td>collecting/booking/confirmed → cancelled</td>
+<td>保存原因；不改财务事实</td>
+</tr>
+<tr>
+<td><code>archive_activity</code></td>
+<td>finished/cancelled，不变</td>
+<td>billing_status=settled；设置 archived_at</td>
+</tr>
+</tbody>
+</table></div>
+<p>对“迁移旧订单”的操作，只允许订单内容仍然覆盖新计划，例如仅更换名单；时间或场馆不一致时必须标记旧订单已处理并另外登记新订单。取消订单状态与退款入账分开，不能假设取消必然全额退款。</p>
+<p>迁移后的订单若已完整覆盖新计划，可在同一事务直接恢复 confirmed。回应 yes 生成带 origin_plan_id 的 activity 规则；回应 no、替换计划时清除此类自动规则并增加对应用户时间版本，不删除其手工覆盖。</p>
+<p>有有效订单时重新选择时间必须走 reschedule，不能通过 select_plan 绕过订单处理。已结束活动不重新开球，复制创建新活动。</p>
+<h3 id="d2-h20">6.2 账单状态</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>服务函数</th>
+<th>起点 → 终点</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create/update/void_expense</code></td>
+<td>draft → draft</td>
+<td>按成员／主持人权限；递增 bill_generation</td>
+</tr>
+<tr>
+<td><code>publish_bill</code></td>
+<td>draft → issued/settled</td>
+<td>活动 finished/cancelled；到场已核对；费用分摊完整；生成快照；无剩余转账则 settled</td>
+</tr>
+<tr>
+<td><code>claim_payment</code></td>
+<td>issued，不变</td>
+<td>当前版本的付款人；金额不超过剩余应付；一个 pending claim</td>
+</tr>
+<tr>
+<td><code>confirm_payment</code></td>
+<td>issued → issued/settled</td>
+<td>只能由收款人确认；全体余额为零则 settled</td>
+</tr>
+<tr>
+<td><code>reopen_bill</code></td>
+<td>issued/settled → draft</td>
+<td>主持人；没有 claimed 待处理记录；保留所有 confirmed 转账</td>
+</tr>
+</tbody>
+</table></div>
+<p>修改全局费率不触发已有活动 bill_generation。普通时间变更也不触发财务重算。只对真正影响账款的到场、费用和分摊操作更新账务版本。</p>
+<h2 id="d2-h21">7. 时间引擎与 WakeUp</h2>
+<h3 id="d2-h22">7.1 对外纯函数</h3>
+<pre><code class="language-python">from dataclasses import dataclass
+from datetime import datetime
+from typing import Literal, Protocol
+
+AvailabilityState = Literal[&quot;free&quot;, &quot;busy&quot;, &quot;unknown&quot;]
+
+@dataclass(frozen=True)
+class Interval:
+    start: datetime  # aware datetime
+    end: datetime
+
+@dataclass(frozen=True)
+class ResolvedSegment:
+    span: Interval
+    state: AvailabilityState
+    source: str | None
+
+def resolve_availability(rules, query: Interval, timezone: str) -&gt; list[ResolvedSegment]:
+    &quot;&quot;&quot;把规则展开、裁剪、覆盖并合并，完整覆盖 query，包含 unknown。&quot;&quot;&quot;
+    ...
+
+def summarize_window(resolved: list[ResolvedSegment], query: Interval) -&gt; AvailabilityState:
+    &quot;&quot;&quot;全程 free 才是 free；含 busy 则 busy；其余是 unknown。&quot;&quot;&quot;
+    ...
+</code></pre>
+<p>输入规则必须已经按 user_id 和本次 activity_id 过滤，其他活动的局部覆盖不进入计算。返回 <code>source</code> 仅用于本人解释视图；共享 DTO 不返回私人规则 ID、课程名称或来源细节。</p>
+<h3 id="d2-h23">7.2 区间解析算法</h3>
+<p>先将 weekly 规则在查询的当地日期范围内展开为实际 UTC 区间，与 once 区间一起裁剪到 query。收集 query 起止和所有规则起止边界，排序去重。对每个相邻边界区间选择覆盖它的最高 <code>(source_priority, edit_seq)</code> 规则，无规则则 unknown。最后合并状态和来源相同的相邻区间。</p>
+<p>首版成员不超过 30、查询不超过 14 天，直接边界扫描便于验证。复杂度主要由每用户几百个规则决定，不按秒枚举，不把 15 分钟 UI 栅格当成计算精度。跨天区间正确切分；比较和求交统一使用 UTC 时刻，周期展开在规则自己的时区内完成。</p>
+<p>周次由学期首周的星期一计算：<code>week_index = floor((local_date - term_start_monday).days / 7) + 1</code>。单双周先转为明确 <code>weeks</code> 数组。遇到有夏令时的配置，具体日期输入要求提供有效偏移；周期产生不存在的当地时间时跳过该次并在本人规则预览提示，重复钟点固定选择 <code>fold=0</code>。默认上海时区不涉及这一转换。</p>
+<h3 id="d2-h24">7.3 WakeUp 适配契约</h3>
+<pre><code class="language-python">class ScheduleImporter(Protocol):
+    key: str
+
+    async def fetch(self, share_text: str) -&gt; bytes:
+        &quot;&quot;&quot;仅从该适配器的固定可信来源获取分享内容。&quot;&quot;&quot;
+        ...
+
+    def normalize(self, payload: bytes) -&gt; &quot;NormalizedSchedule&quot;:
+        &quot;&quot;&quot;把上游格式转换为已确定日期和节次的业务结构。&quot;&quot;&quot;
+        ...
+</code></pre>
+<p>内部标准化对象示例，<strong>这是 ShuttleUp 的契约，不声称是 WakeUp 原始返回格式</strong>：</p>
+<pre><code class="language-json">{
+  &quot;provider_key&quot;: &quot;wakeup&quot;,
+  &quot;label&quot;: &quot;2026秋季课表&quot;,
+  &quot;timezone&quot;: &quot;Asia/Shanghai&quot;,
+  &quot;term_start_monday&quot;: &quot;2026-09-07&quot;,
+  &quot;term_end_date&quot;: &quot;2027-01-24&quot;,
+  &quot;periods&quot;: [
+    {&quot;index&quot;: 1, &quot;start&quot;: &quot;08:00&quot;, &quot;end&quot;: &quot;08:45&quot;},
+    {&quot;index&quot;: 2, &quot;start&quot;: &quot;08:55&quot;, &quot;end&quot;: &quot;09:40&quot;}
+  ],
+  &quot;lessons&quot;: [
+    {&quot;external_key&quot;: &quot;course-1&quot;, &quot;preview_title&quot;: &quot;示例课程&quot;, &quot;weekday&quot;: 1,
+     &quot;weeks&quot;: [1, 3, 5], &quot;period_indices&quot;: [1, 2]}
+  ],
+  &quot;dated_occurrences&quot;: []
+}
+</code></pre>
+<p>规范化流程：提取有效口令 → 获取真实分享内容 → 解析学期元数据、节次表和课程周次 → 转成明确 occurrence → 预览 → 确认导入。每个节次先产生准确的繁忙区间，相邻有间隔的节次不自动把间隔吃掉；与已有业务时间规则合并由时间引擎完成。</p>
+<p>预览对象保存在当前进程中，以 <code>(user_id,preview_id)</code> 索引，有效期 10 分钟；其中可短暂保留课名供本人核对。确认后仅写入课程繁忙区间与导入元数据，删除预览，不保存原分享口令或整个原始响应。用户设置的 baseline 与导入可以在同一提交中保存。</p>
+<p>截至本次核对，官方用户文档确认了分享口令导入，但没有在所查资料中提供可作为稳定契约的公开开发者接口。实现真实适配器时，用有效口令确认当时的上游请求和响应，并记录到 <code>docs/integrations/wakeup-source.md</code>；脱敏响应进入测试 fixtures。不要把未经验证的 URL、请求头或字段名写成已完成接口。[T4]</p>
+<p>验收必须包含奇数周、偶数周、不连续指定周、连续节次、午休间隔、明确日期调课，以及重导替换。真实口令取样后立即脱敏，不提交个人课程名称。</p>
+<h2 id="d2-h25">8. 场地 Provider、刷新与候选生成</h2>
+<h3 id="d2-h26">8.1 Provider 协议</h3>
+<pre><code class="language-python">from datetime import date
+from typing import Protocol
+
+class VenueProvider(Protocol):
+    key: str
+
+    async def list_venues(self) -&gt; list[&quot;ExternalVenue&quot;]:
+        ...
+
+    async def fetch_day(self, venue_external_id: str, local_date: date) -&gt; &quot;VenueDayResult&quot;:
+        ...
+
+    async def health(self) -&gt; &quot;ProviderHealth&quot;:
+        ...
+</code></pre>
+<p><code>ExternalVenue</code> 包含 external_venue_id、name、address、timezone、booking_url 和可空的 hourly_rate_cents；<code>ProviderHealth</code> 包含 status（ok/error/auth_required）、checked_at 和 message。</p>
+<p>Provider 只返回数据，不写数据库、不发布通知、不决定活动状态。<code>ProviderRegistry</code> 是一个明确的 <code>adapter_key -&gt; factory</code> 映射。配置和 HTTP client 从构造函数传入；新增适配器不修改调度器。</p>
+<p>一次整日结果示例：</p>
+<pre><code class="language-json">{
+  &quot;schema_version&quot;: 1,
+  &quot;external_venue_id&quot;: &quot;gym-a&quot;,
+  &quot;local_date&quot;: &quot;2026-09-19&quot;,
+  &quot;timezone&quot;: &quot;Asia/Shanghai&quot;,
+  &quot;fetched_at&quot;: &quot;2026-09-18T12:00:00+08:00&quot;,
+  &quot;coverage&quot;: {
+    &quot;starts_at&quot;: &quot;2026-09-19T08:00:00+08:00&quot;,
+    &quot;ends_at&quot;: &quot;2026-09-19T22:00:00+08:00&quot;,
+    &quot;complete&quot;: true,
+    &quot;identity_mode&quot;: &quot;court&quot;
+  },
+  &quot;slots&quot;: [
+    {
+      &quot;external_slot_id&quot;: &quot;c3-20260919-1800&quot;,
+      &quot;court_id&quot;: &quot;c3&quot;,
+      &quot;court_name&quot;: &quot;3号场&quot;,
+      &quot;starts_at&quot;: &quot;2026-09-19T18:00:00+08:00&quot;,
+      &quot;ends_at&quot;: &quot;2026-09-19T19:00:00+08:00&quot;,
+      &quot;status&quot;: &quot;available&quot;,
+      &quot;price_cents&quot;: 6000,
+      &quot;remaining_count&quot;: 1,
+      &quot;release_at&quot;: null,
+      &quot;booking_url&quot;: &quot;https://venue.example/booking&quot;
+    },
+    {
+      &quot;external_slot_id&quot;: &quot;c3-20260919-1900&quot;,
+      &quot;court_id&quot;: &quot;c3&quot;,
+      &quot;court_name&quot;: &quot;3号场&quot;,
+      &quot;starts_at&quot;: &quot;2026-09-19T19:00:00+08:00&quot;,
+      &quot;ends_at&quot;: &quot;2026-09-19T20:00:00+08:00&quot;,
+      &quot;status&quot;: &quot;available&quot;,
+      &quot;price_cents&quot;: 6000,
+      &quot;remaining_count&quot;: 1,
+      &quot;release_at&quot;: null,
+      &quot;booking_url&quot;: &quot;https://venue.example/booking&quot;
+    }
+  ]
+}
+</code></pre>
+<p>示例域名仅表示配置结构，不是已经接入的场馆。slot.status 为 <code>available/unavailable/not_released/unknown</code>。price_cents 是<strong>一块场地购买整个 slot 的总价</strong>，不是小时单价。所有时间必须带偏移；court_id 在同一场馆中稳定。不同报价套餐可以有不同 external_slot_id，不按行数增加球场数量。</p>
+<p>聚合来源使用 <code>identity_mode=aggregate</code>、<code>court_id=null</code>、<code>remaining_count=N</code>。V1 将其显示为需核实余量，不推导具名连续球场。未返回的区间按 unknown 处理；如果上游语义能确定缺失即已售，适配器负责显式生成 unavailable，核心服务不猜测。</p>
+<p>标准 JSON Provider 从管理员配置的固定 endpoint 读取上述契约；人工 Provider 使用相同模型提供编辑入口；真实站点 Provider 将它的 HTTP/HTML 数据转换为同一结果。来源地址由管理员配置并限制到具体域名，普通用户不能让服务器抓任意 URL。credential_env 仅允许读取以 VENUE_ 开头的配置项。普通登录态由运维提供，爬虫按站点允许的访问方式和频率查询，不实现验证码绕过。</p>
+<h3 id="d2-h27">8.2 调度与共享快照</h3>
+<p>后台每 2 秒检查有需要的 <code>(venue_id,local_date)</code>。需要查询的范围来自 collecting/booking 活动的候选场馆和日期；已确定、已结束和已取消活动不产生常驻查询。</p>
+<p>一个 SSE 连接可带 <code>watch_activity_id</code> 标记当前可见活动。存在可见观看者时目标周期 30 秒，否则 120 秒，并与 <code>min_poll_seconds</code> 取较大值。同键只允许一个进行中的查询，多个活动共享；每个 Provider 的并发默认为 1，另用 min_request_interval_seconds 控制整个来源的请求间隔。排程优先最近活动日期，同一个过期查询键只保留一份待执行项，不积累追赶任务。</p>
+<p>处理流程为：取需求 → 网络查询 → 验证标准响应 → 短事务更新快照 → 发布有意义的变更事件。<code>content_hash</code> 不包含 fetched_at；内容相同不增加快照 revision。每次成功查询清空 reported_stale_at。当前时间超过 <code>last_success_at + fresh_for_seconds</code> 且 reported_stale_at 为空时，事务设置该字段，后台产生一次 stale 变更，候选立即重算；时间流逝本身也是失效输入。</p>
+<p>抓取错误只更新 last_attempt_at/error_code，保留 last_success_at 与旧 slots 供页面解释；旧 slots 失效后不能继续参与 verified 候选。异常只显示具体错误和刷新状态，不创建额外的“自动猜测余量”路径。</p>
+<h3 id="d2-h28">8.3 候选算法</h3>
+<p>函数输入为活动快照、成员解析后的忙闲区间、场馆快照和 <code>now</code>，输出 <code>Candidate[]</code>。核心算法不读取数据库，便于构造固定测试。</p>
+<ol>
+<li>过滤活动的日期范围和允许时间窗，排除已经开始的时段。候选 start 取来源可购买 slot 的起始边界；end=<code>start + duration</code>，并要求整个区间处在允许时间内。仅展示人的共同时间时才按 15 分钟网格列举起点。</li>
+<li>每位 active 成员用 summarize_window 判断全程 free/busy/unknown。保留完整 eligible 列表，不预先截断到 max_players。验证最低人数及核心成员。</li>
+<li>对每个具名球场，把 available slot 建成从 starts_at 到 ends_at 的有向边。<code>cover_court(court,start,end)</code> 寻找从 start 到 end 的连续路径，不能出现间隙、跨球场或超买一截时段。这样同时支持 30/60 分钟单元和不同报价套餐。</li>
+<li>同一球场多条路径时按“无未知价优先、总价低优先、slot_id 顺序”选择一条。时间边只向前，按时间排序做动态规划即可。已过期快照或 coverage 不完整的缺口不得作为 available 边。</li>
+<li>得到所有完整覆盖的球场，数量至少 court_count 才生成 verified 候选。默认选择已知总价优先、总价最低的 K 块；保留所有 court_options 供主持人查看。金额是每块选中路径的 slot 总价之和，有一个未知即 total_price_cents=null。</li>
+<li>用 PRD 的字典序排序：<code>(-min(eligible_count,max_players), venue_preference_index, price_is_unknown, known_total_price, starts_at, venue_id)</code>。同一时段同一场馆只保留一张候选卡，避免排列组合刷屏。</li>
+</ol>
+<p><code>candidate_fingerprint = hash(activity.version, venue_id, start, end, selected_courts_and_slot_ids)</code>，再提供碰撞检查后的短号。候选响应还携带用户 availability_revision 集合、来源 revision 和过期时刻，作为输入签名。成员修改时间时可以复用相同内容的短号，但每次 select_plan 都要基于<strong>当前输入重新验证</strong>，不盲信旧卡片的结果。</p>
+<p>改约计算可把本活动已确认且尚未取消的订单作为“已拥有”的时间边，与外部可预约边组合；这些边只用于该活动，不写回网站余量，也不能供别的活动使用。</p>
+<p>候选缓存仅在进程内，以活动 ID 和输入签名索引；到来源过期时刻自动失效。不保存“可用球场库存”，也不把选中候选当作网站锁场。</p>
+<h3 id="d2-h29">8.4 候选响应示例</h3>
+<pre><code class="language-json">{
+  &quot;activity_version&quot;: 8,
+  &quot;generated_at&quot;: &quot;2026-09-18T12:00:00+08:00&quot;,
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;cnd_6d21b6a9d83f&quot;,
+      &quot;short_code&quot;: &quot;C7K2&quot;,
+      &quot;classification&quot;: &quot;verified&quot;,
+      &quot;starts_at&quot;: &quot;2026-09-19T18:00:00+08:00&quot;,
+      &quot;ends_at&quot;: &quot;2026-09-19T20:00:00+08:00&quot;,
+      &quot;venue_id&quot;: &quot;venue-a&quot;,
+      &quot;court_ids&quot;: [&quot;c3&quot;],
+      &quot;continuous_court_count&quot;: 1,
+      &quot;eligible_participant_ids&quot;: [&quot;pa&quot;, &quot;pb&quot;, &quot;pc&quot;, &quot;pd&quot;, &quot;pe&quot;],
+      &quot;unknown_participant_ids&quot;: [],
+      &quot;busy_participant_ids&quot;: [],
+      &quot;total_price_cents&quot;: 12000,
+      &quot;last_success_at&quot;: &quot;2026-09-18T12:00:00+08:00&quot;,
+      &quot;fresh_until&quot;: &quot;2026-09-18T12:01:30+08:00&quot;,
+      &quot;reason_codes&quot;: [&quot;MIN_PLAYERS_MET&quot;, &quot;REQUIRED_PLAYERS_FREE&quot;, &quot;COURTS_CONTINUOUS&quot;]
+    }
+  ],
+  &quot;other_windows&quot;: []
+}
+</code></pre>
+<p>来源没有报价时可额外返回按本次费率快照计算的 estimated_total_cents，界面标“按默认费率估算”；total_price_cents 仍为 null，不能把估计价冒充已知报价参与排名。</p>
+<p>示例 ID 为便于阅读的别名，实际实体 ID 为 UUID。<code>other_windows</code> 按同样字段结构附 <code>classification=people_only/needs_court_check/insufficient_players</code> 与 reason_codes；前端不可把它们渲染成 verified。</p>
+<h2 id="d2-h30">9. 账务算法与不可变账单</h2>
+<h3 id="d2-h31">9.1 精确金额输入</h3>
+<p>浏览器金额输入保留字符串，按正则解析到分，例如 <code>&quot;12.30&quot; -&gt; 1230</code>；不使用 <code>parseFloat(value) * 100</code>。后端只接收 amount_cents。场地时间单价换算可以使用 Decimal 在内部计算一次，最终按 ROUND_HALF_UP 转为整数分；持久化和分账只处理整数。</p>
+<p>预计场地费：<code>round_half_up(hourly_cents * court_count * duration_minutes / 60)</code>。费用确认采用实际 amount_cents。球数量为正整数，<code>unit_price_cents * quantity</code>。成员更改品名或备注不改变金额，只有明确保存金额变更才递增账务 generation。</p>
+<h3 id="d2-h32">9.2 支出分配</h3>
+<p>均分算法对正费用 <code>M</code>、成员数 <code>N</code>，计算 <code>q,r = divmod(M,N)</code>。成员按 <code>(join_order,participant_id)</code> 排序，前 r 人承担 q+1 分，其余 q 分。结果不受数据库查询顺序或随机 UUID 的变化影响。</p>
+<p>精确分摊直接接受每人整数分金额，要求全部非负、无重复成员且合计=M。同一笔费用的承担人允许包含未到场成员，但必须属于活动历史成员集合。动态 attendees 在出账时展开为已核对 present 的成员；若无人承担，主持人必须指定承担人，不能除以零或自动归给主持人。</p>
+<p>退款保存负 amount_cents 和关联原费用。以原费用尚未退回给各承担人的金额作为权重，对本次退款绝对值按最大余数法分配，然后取负；余数相同按 join_order。每个人本次退款不超过其剩余承担额。多次退款使用剩余额度重新计算，所有退款累计不超过原费用。</p>
+<p>原费用未发布过时，在记录退款前先固定其承担人和整数分结果，落为 exact/selected 的 expense_shares；原费用发布过则从最近快照固定原分配；已有退款关联的原费用不能单独修改金额、承担范围或作废，需连同关联退款一并更正。精确退款同样要求对每位成员不超过尚未退款额。收到商家退款的人填到该负费用的 payer 字段。</p>
+<h3 id="d2-h33">9.3 余额与转账计划</h3>
+<p>对成员 u 定义：</p>
+<pre><code class="language-text">outlay[u] = Σ amount_cents，其中 expense.payer = u（含负退款）
+share[u]  = Σ 该成员每笔费用的已分配金额（含负退款份额）
+sent[u]   = Σ 已确认的球友转账，from = u
+received[u] = Σ 已确认的球友转账，to = u
+balance[u] = outlay[u] - share[u] + sent[u] - received[u]
+</code></pre>
+<p>balance&gt;0 还应收，balance&lt;0 还应付。每次计算必须满足 <code>sum(balance)=0</code>、<code>sum(shares)=sum(expenses)</code>。声明付款但尚未确认的金额不进入 sent/received。</p>
+<p>将债权人按 <code>(-balance,join_order,id)</code> 排序，将债务人按 <code>(-abs(balance),join_order,id)</code> 排序。双指针配对，每次转移两者剩余额度的较小值，一方清零就前进，直到完成。输出最多为非零余额人数减一条，不声称求得全局最少转账笔数。</p>
+<p>纯函数：<code>allocate_expense(expense,participants)</code>、<code>calculate_balances(allocated_expenses,confirmed_payments)</code>、<code>simplify_transfers(balances)</code>；不读取 Session，也不修改付款状态。</p>
+<h3 id="d2-h34">9.4 发布快照</h3>
+<p>发布服务在同一事务核对 activity 状态、bill_generation 和权限，重新计算而不是接受前端提交的结算结果，然后保存：</p>
+<pre><code class="language-json">{
+  &quot;schema_version&quot;: 1,
+  &quot;currency&quot;: &quot;CNY&quot;,
+  &quot;participant_snapshots&quot;: [
+    {&quot;id&quot;: &quot;pa&quot;, &quot;name&quot;: &quot;A&quot;, &quot;join_order&quot;: 1},
+    {&quot;id&quot;: &quot;pb&quot;, &quot;name&quot;: &quot;B&quot;, &quot;join_order&quot;: 2}
+  ],
+  &quot;expense_snapshots&quot;: [
+    {&quot;id&quot;: &quot;ex1&quot;, &quot;amount_cents&quot;: 12000, &quot;payer_participant_id&quot;: &quot;pa&quot;,
+     &quot;allocations&quot;: [{&quot;participant_id&quot;: &quot;pa&quot;, &quot;amount_cents&quot;: 6000},
+                     {&quot;participant_id&quot;: &quot;pb&quot;, &quot;amount_cents&quot;: 6000}]}
+  ],
+  &quot;confirmed_payment_ids_at_publish&quot;: [],
+  &quot;balances_at_publish&quot;: {&quot;pa&quot;: 6000, &quot;pb&quot;: -6000},
+  &quot;transfers&quot;: [
+    {&quot;id&quot;: &quot;tr1&quot;, &quot;short_code&quot;: &quot;T4J8&quot;, &quot;from_participant_id&quot;: &quot;pb&quot;,
+     &quot;to_participant_id&quot;: &quot;pa&quot;, &quot;amount_cents&quot;: 6000}
+  ]
+}
+</code></pre>
+<p>每个账单版本保存当时完整费用分配、昵称快照、已确认付款 ID 集合和初始剩余余额。这样修改昵称、全局费率或未来课表不改变旧账单含义。</p>
+<p>同一版本的转账指令保持不变；其剩余额度等于原指令金额减该指令已 confirmed 的付款总额。一次最多一个 claimed 防止重复点击抢占同一份余额。确认接口在事务中再次核对余额，不能累计超收。</p>
+<h3 id="d2-h35">9.5 修订和退款例子</h3>
+<p>reopen 将 billing_status 改为 draft，保留所有历史快照和 confirmed payment_claims。新版本发布时用最新费用和<strong>全部已确认的历史转账</strong>重新计算 balance，重新生成只针对剩余净额的转账指令。旧版本只读，不能再创建付款声明。</p>
+<p>固定退款测试：A 垫付 120 元，四人各承担 30 元，B/C/D 已各给 A 30 元且确认。之后场馆向 A 退 40 元，四人各减 10 元承担。重出账后 A 应分别退给 B/C/D 各 10 元；不能再次向 B/C/D 收费，也不能把 A 收到的 40 元全部留给 A。</p>
+<p>取消活动以相同账务模型运行。不另做“取消退款子系统”，不把活动状态用作删除费用的触发器。</p>
+<h2 id="d2-h36">10. HTTP API 契约</h2>
+<h3 id="d2-h37">10.1 通用约定</h3>
+<p>Web 前缀 <code>/api/v1</code>；Bot 前缀 <code>/bot/v1</code>。成功直接返回有类型的对象，集合返回 <code>{items,next_cursor}</code>；不额外包一层永远为 true 的 success。创建返回 201，普通读取／修改返回 200，异步触发一次共享刷新返回 202，删除草稿规则返回 204。</p>
+<p>错误统一为：</p>
+<pre><code class="language-json">{
+  &quot;error&quot;: {
+    &quot;code&quot;: &quot;VERSION_CONFLICT&quot;,
+    &quot;message&quot;: &quot;此活动刚刚有更新，请查看最新安排。&quot;,
+    &quot;field&quot;: null,
+    &quot;current_version&quot;: 9
+  }
+}
+</code></pre>
+<p>必要业务错误包括 <code>UNAUTHENTICATED</code>(401)、<code>FORBIDDEN</code>(403)、<code>NOT_FOUND</code>(404)、<code>VALIDATION_ERROR</code>(422)、<code>VERSION_CONFLICT</code>、<code>INVALID_TRANSITION</code>、<code>CANDIDATE_CHANGED</code>、<code>BILL_NOT_DRAFT</code>、<code>PAYMENT_PENDING</code>、<code>MEMBER_ALREADY_EXISTS</code>、<code>IDEMPOTENCY_CONFLICT</code>(409)。外部来源错误返回具体来源状态，不伪装成业务验证成功。</p>
+<p>PATCH 只修改明确给出的字段。主键、归属、创建人和派生总额不能通过通用 PATCH 改写。所有 DTO 使用 Pydantic 定义并生成 OpenAPI，前端用 openapi-typescript 生成类型，CI 检查生成文件与后端一致。</p>
+<h3 id="d2-h38">10.2 身份与设置</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方法与路径</th>
+<th>输入</th>
+<th>输出／行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /auth/guest</code></td>
+<td><code>display_name</code></td>
+<td>创建访客 Cookie，返回 user</td>
+</tr>
+<tr>
+<td><code>POST /auth/register</code></td>
+<td><code>username,password,display_name?</code></td>
+<td>有访客会话则升级该身份，否则创建账户</td>
+</tr>
+<tr>
+<td><code>POST /auth/login</code></td>
+<td><code>username,password</code></td>
+<td>建立会话</td>
+</tr>
+<tr>
+<td><code>POST /auth/logout</code></td>
+<td>无</td>
+<td>销毁当前会话</td>
+</tr>
+<tr>
+<td><code>GET /session</code></td>
+<td>无</td>
+<td><code>user,csrf_token</code>；未登录 user=null</td>
+</tr>
+<tr>
+<td><code>GET/PATCH /me</code></td>
+<td><code>display_name,timezone,expected_version</code></td>
+<td>当前用户资料</td>
+</tr>
+<tr>
+<td><code>PUT /me/password</code></td>
+<td><code>current_password,new_password</code></td>
+<td>修改密码并撤销其他会话</td>
+</tr>
+<tr>
+<td><code>GET/PUT /settings</code></td>
+<td>全局费率、时区、游客配置、版本</td>
+<td>管理员设置</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="d2-h39">10.3 时间与导入</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方法与路径</th>
+<th>输入</th>
+<th>输出／行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /me/availability</code></td>
+<td><code>from,to,activity_id?</code></td>
+<td>可编辑的本人规则 + 私人的解析区间 + revision</td>
+</tr>
+<tr>
+<td><code>POST /me/availability/rules</code></td>
+<td><code>state,source,kind,span或recurrence,activity_id?,expected_revision</code></td>
+<td>新规则与新 revision</td>
+</tr>
+<tr>
+<td><code>PATCH/DELETE /me/availability/rules/{id}</code></td>
+<td>可编辑字段、revision</td>
+<td>仅本人规则；课程规则通过重导替换</td>
+</tr>
+<tr>
+<td><code>POST /me/imports/wakeup/preview</code></td>
+<td><code>share_text</code></td>
+<td><code>preview_id,term,periods,busy_occurrences,summary</code></td>
+</tr>
+<tr>
+<td><code>POST /me/imports/wakeup/confirm</code></td>
+<td><code>preview_id,label,baseline_rules,expected_revision</code></td>
+<td>事务替换导入并保存 baseline</td>
+</tr>
+<tr>
+<td><code>GET /me/imports</code></td>
+<td>无</td>
+<td>已导入来源元信息</td>
+</tr>
+<tr>
+<td><code>DELETE /me/imports/{id}</code></td>
+<td>revision</td>
+<td>删除该导入及其 course 规则，不删手工规则</td>
+</tr>
+</tbody>
+</table></div>
+<p>前端可以批量保存拖选产生的规则；为此 POST rules 同时接受 <code>rules: RuleCreate[]</code>，同一批次至多 100 条，所有规则共用一个 revision。单条输入也包装为长度 1 的数组，避免两种业务路径。</p>
+<h3 id="d2-h40">10.4 活动与成员</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方法与路径</th>
+<th>输入</th>
+<th>输出／行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /activities</code></td>
+<td><code>scope=active/history/actionable,cursor</code></td>
+<td>我参与的活动与待处理摘要</td>
+</tr>
+<tr>
+<td><code>POST /activities</code></td>
+<td>ActivityCreate</td>
+<td>新活动和邀请 token</td>
+</tr>
+<tr>
+<td><code>GET/PATCH /activities/{id}</code></td>
+<td>ActivityPatch + expected_version</td>
+<td>详情快照／修改设置</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/clone</code></td>
+<td>新标题与日期</td>
+<td>新活动，不复制业务事实</td>
+</tr>
+<tr>
+<td><code>GET /invites/{token}</code></td>
+<td>无</td>
+<td>公开邀请摘要</td>
+</tr>
+<tr>
+<td><code>POST /invites/{token}/join</code></td>
+<td>已有会话，或 <code>display_name</code></td>
+<td>幂等加入，返回活动与用户</td>
+</tr>
+<tr>
+<td><code>GET /activities/{id}/invite</code></td>
+<td>无</td>
+<td>主持人取得当前分享链接，不轮换 token</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/invite</code></td>
+<td><code>action=rotate/disable</code>、版本</td>
+<td>主持人管理邀请</td>
+</tr>
+<tr>
+<td><code>GET /activities/{id}/participants</code></td>
+<td>无</td>
+<td>成员、rsvp、到场状态</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/participants/offline</code></td>
+<td><code>display_name</code></td>
+<td>主持人补记临时球友</td>
+</tr>
+<tr>
+<td><code>PATCH /activities/{id}/participants/{pid}</code></td>
+<td><code>required?/membership?</code>、版本</td>
+<td>主持人设置核心／移除成员</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/leave</code></td>
+<td>无</td>
+<td>本人退出；主持人需先转交</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/host</code></td>
+<td><code>new_host_user_id,expected_version</code></td>
+<td>转交主持人</td>
+</tr>
+<tr>
+<td><code>PUT /activities/{id}/rsvp</code></td>
+<td><code>plan_id,response=yes/no</code></td>
+<td>当前拟参加者回应</td>
+</tr>
+<tr>
+<td><code>PUT /activities/{id}/attendance</code></td>
+<td><code>entries:[{participant_id,state}],verify</code></td>
+<td>本人自报；host 可核对全员</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/participants/{pid}/claim-token</code></td>
+<td>无</td>
+<td>主持人生成临时球友认领链接</td>
+</tr>
+<tr>
+<td><code>POST /participant-claims/{token}</code></td>
+<td>当前登录身份</td>
+<td>认领临时参与记录</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="d2-h41">10.5 候选、计划、场馆与订单</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方法与路径</th>
+<th>输入</th>
+<th>输出／行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /activities/{id}/availability</code></td>
+<td><code>from,to</code></td>
+<td>共享三态区间与共同时间，不包含课程原因</td>
+</tr>
+<tr>
+<td><code>GET /activities/{id}/candidates</code></td>
+<td><code>limit=20</code></td>
+<td>候选、其他时间、来源新鲜度</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/plans</code></td>
+<td><code>candidate_id,roster_participant_ids,expected_version</code></td>
+<td>当前输入重新校验后选定</td>
+</tr>
+<tr>
+<td><code>DELETE /activities/{id}/plan</code></td>
+<td>expected_version</td>
+<td>符合状态条件时回到 collecting</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/reschedule</code></td>
+<td><code>candidate_id,roster,old_booking_actions,expected_version</code></td>
+<td>明确改约</td>
+</tr>
+<tr>
+<td><code>GET/POST /activities/{id}/bookings</code></td>
+<td>BookingCreate</td>
+<td>订单列表／记录订场</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/bookings/{bid}/payment</code></td>
+<td><code>amount_cents,payer_participant_id</code></td>
+<td>记录一次真实垫款，关联一笔费用</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/bookings/{bid}/cancel</code></td>
+<td><code>reason,expected_version</code></td>
+<td>标记订单取消，不自动记退款</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/finish</code></td>
+<td>expected_version</td>
+<td>结束活动</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/cancel</code></td>
+<td><code>reason,expected_version</code></td>
+<td>取消活动</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/archive</code></td>
+<td>expected_version</td>
+<td>结清后归档</td>
+</tr>
+<tr>
+<td><code>GET /venues</code></td>
+<td>无</td>
+<td>启用的场馆和来源配置摘要</td>
+</tr>
+<tr>
+<td><code>GET /venues/{id}/slots</code></td>
+<td><code>date</code></td>
+<td>标准化快照与新鲜度</td>
+</tr>
+<tr>
+<td><code>POST /venues/{id}/refresh</code></td>
+<td><code>date,activity_id</code></td>
+<td>成员触发共享查询，202 返回 refresh_key</td>
+</tr>
+<tr>
+<td><code>GET/POST/PATCH /settings/providers[/{id}]</code></td>
+<td>ProviderConfig</td>
+<td>管理员管理来源配置</td>
+</tr>
+<tr>
+<td><code>POST/PATCH /settings/venues[/{id}]</code></td>
+<td>VenueConfig</td>
+<td>管理员管理场馆</td>
+</tr>
+<tr>
+<td><code>PUT /settings/venues/{id}/manual-slots</code></td>
+<td>VenueDayResult、版本</td>
+<td>人工来源编辑，走相同刷新事件</td>
+</tr>
+</tbody>
+</table></div>
+<p>上表方括号是文档缩写，实际 OpenAPI 必须分别定义集合与具体资源路由。刷新完成通过 SSE 使 slots/candidates 失效，前端再 GET，不为每次刷新建一个永久任务表。</p>
+<h3 id="d2-h42">10.6 费用与账单</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方法与路径</th>
+<th>输入</th>
+<th>输出／行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET/POST /activities/{id}/expenses</code></td>
+<td>ExpenseCreate</td>
+<td>费用列表／新增实际支出</td>
+</tr>
+<tr>
+<td><code>PATCH/DELETE /activities/{id}/expenses/{eid}</code></td>
+<td>ExpensePatch + version</td>
+<td>draft 内编辑／作废</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/expenses/{eid}/refunds</code></td>
+<td><code>amount_cents&lt;0,payer_participant_id,allocations?</code></td>
+<td>关联原费用记录实际退款</td>
+</tr>
+<tr>
+<td><code>GET /activities/{id}/bill/preview</code></td>
+<td>无</td>
+<td>费用分配、余额、转账计划、bill_generation</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/bill/publish</code></td>
+<td><code>expected_generation</code></td>
+<td>新账单快照与 issued/settled 状态</td>
+</tr>
+<tr>
+<td><code>GET /activities/{id}/bill</code></td>
+<td><code>revision?</code></td>
+<td>当前或历史只读账单与付款进度</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/bill/reopen</code></td>
+<td><code>reason,expected_generation</code></td>
+<td>回到 draft，保留 confirmed 转账</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/payments</code></td>
+<td><code>bill_revision_id,transfer_id,amount_cents</code></td>
+<td>本人付款声明</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/payments/{pid}/confirm</code></td>
+<td>无</td>
+<td>指定收款人确认</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/payments/{pid}/reject</code></td>
+<td><code>reason?</code></td>
+<td>指定收款人退回</td>
+</tr>
+<tr>
+<td><code>POST /activities/{id}/payments/{pid}/withdraw</code></td>
+<td>无</td>
+<td>付款人撤回未确认声明</td>
+</tr>
+</tbody>
+</table></div>
+<p>创建正向费用的 POST 不接受 kind=refund；负费用只通过关联原支出的 refunds 接口创建。</p>
+<h3 id="d2-h43">10.7 写入示例</h3>
+<p>ActivityCreate 的可选 price_overrides 只表示用户显式覆盖；服务端读取全局与场馆设置生成完整 price_defaults 快照。PATCH 活动沿用 price_overrides，不能直接覆盖只读快照来源字段。</p>
+<p>创建活动：</p>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;周末打球&quot;,
+  &quot;timezone&quot;: &quot;Asia/Shanghai&quot;,
+  &quot;date_from&quot;: &quot;2026-09-19&quot;,
+  &quot;date_to&quot;: &quot;2026-09-20&quot;,
+  &quot;daily_windows&quot;: [{&quot;weekdays&quot;: [6, 7], &quot;start_time&quot;: &quot;14:00&quot;, &quot;end_time&quot;: &quot;22:00&quot;}],
+  &quot;duration_minutes&quot;: 120,
+  &quot;min_players&quot;: 4,
+  &quot;max_players&quot;: 6,
+  &quot;court_count&quot;: 1,
+  &quot;venue_preferences&quot;: [&quot;venue-a&quot;],
+  &quot;decision_deadline&quot;: &quot;2026-09-18T22:00:00+08:00&quot;,
+  &quot;price_overrides&quot;: {&quot;court_hourly_cents&quot;: 6000, &quot;shuttle_unit_cents&quot;: 1200}
+}
+</code></pre>
+<p>指定人员均分支出：</p>
+<pre><code class="language-json">{
+  &quot;kind&quot;: &quot;extra&quot;,
+  &quot;description&quot;: &quot;停车&quot;,
+  &quot;amount_cents&quot;: 2000,
+  &quot;payer_participant_id&quot;: &quot;pc&quot;,
+  &quot;split_mode&quot;: &quot;equal&quot;,
+  &quot;split_scope&quot;: &quot;selected&quot;,
+  &quot;shares&quot;: [{&quot;participant_id&quot;: &quot;pa&quot;}, {&quot;participant_id&quot;: &quot;pc&quot;}]
+}
+</code></pre>
+<p>精确分摊沿用该结构，将 split_mode 设为 exact，每个 share 提供 <code>exact_amount_cents</code>。动态全体到场者使用 <code>split_scope=attendees,shares=[]</code>；发布前由后端展开，前端不自行计算应付净额。</p>
+<h2 id="d2-h44">11. 实时事件与通知投递</h2>
+<h3 id="d2-h45">11.1 事件契约</h3>
+<pre><code class="language-json">{
+  &quot;id&quot;: 183,
+  &quot;type&quot;: &quot;expense.created&quot;,
+  &quot;activity_id&quot;: &quot;activity-a&quot;,
+  &quot;actor_user_id&quot;: &quot;user-b&quot;,
+  &quot;resource_version&quot;: 12,
+  &quot;occurred_at&quot;: &quot;2026-09-19T20:10:00+08:00&quot;,
+  &quot;payload&quot;: {&quot;expense_id&quot;: &quot;expense-b&quot;, &quot;bill_generation&quot;: 5}
+}
+</code></pre>
+<p>使用的事件类型固定列出：<code>activity.created/updated/cancelled/finished/archived</code>、<code>participant.joined/left/updated</code>、<code>availability.changed</code>、<code>venue.changed/stale</code>、<code>plan.selected</code>、<code>booking.recorded/confirmed/cancelled</code>、<code>rsvp.changed</code>、<code>attendance.changed</code>、<code>expense.created/updated/voided</code>、<code>bill.published/reopened/settled</code>、<code>payment.claimed/confirmed/rejected/withdrawn</code>。</p>
+<p>SSE 事件只包含需要重新获取的资源标识、版本和少量非敏感摘要；完整数据经过各查询接口自己的权限投影返回。个人日程变更发布一个本人事件，并针对有关活动产生重新计算信号，不向无关活动广播。</p>
+<h3 id="d2-h46">11.2 SSE 连接</h3>
+<p><code>GET /api/v1/events?watch_activity_id=&lt;当前活动&gt;</code> 使用当前 Cookie 验证身份。watch 参数可省略；每个页面只开一条 EventSource。服务端只投递当前用户有权限的活动事件和本人通知事件，不能仅凭 watch_activity_id 订阅别人活动。移除成员或撤销会话后，已有连接也重新检查可见范围。</p>
+<p>响应头：<code>Content-Type: text/event-stream</code>、<code>Cache-Control: no-cache</code>、<code>X-Accel-Buffering: no</code>。每 15 秒发送注释心跳。后台事件派发器每秒批量读取新增 events，扇出到当前进程连接队列；不要让每条浏览器连接各自轮询数据库。</p>
+<pre><code class="language-text">id: 183
+event: resource.changed
+data: {&quot;activity_id&quot;:&quot;activity-a&quot;,&quot;resource&quot;:&quot;bill&quot;,&quot;version&quot;:12}
+
+</code></pre>
+<p>首次连接返回 <code>ready</code> 和当前 cursor，前端随后取得页面快照；快照请求期间收到变更则标记 dirty，返回后再刷新一次。刷新请求携带本地顺序号，旧请求晚返回时不得覆盖新状态。成员操作成功可以先显示服务器返回的新对象，SSE 再进行统一失效更新。</p>
+<p>连接中断后由 EventSource 重连并携带 Last-Event-ID。服务端回放该用户仍有权限的事件；事件保留 7 天，cursor 早于保留范围时发送 <code>reset</code>，前端重新取得快照。响应中不携带过时完整页面来覆盖新数据。[T2]</p>
+<p>页面隐藏时关闭事件连接，可见时重新打开并刷新快照；连接存在时 watch_activity_id 被计作活跃观看者。正常一次变更到另一浏览器展示的目标延迟不超过 2 秒，外部场地发现延迟另受查询周期约束。</p>
+<h3 id="d2-h47">11.3 派生通知</h3>
+<p>一个后台 worker 读取未 processed 的 events，计算是否需要通知，在短事务中写 notifications 并标记 event processed。所有通知有业务 dedupe_key，重复消费事件不会产生两条同一通知。定时提醒使用 <code>activity:{id}:plan:{plan_no}:reminder:2h</code> 这类确定 key。</p>
+<p>公开群通知写入对应 bot_context；个账消息写一条 Web 用户通知，若已绑定可主动私聊的 UMO，再写一条具体私聊 context 通知。用户通知在网页中直接可读，不等待 Bot。推荐和加入进度通过 available_at 延后合并，重要的订场确认／取消／账单事件立即可投递。</p>
+<p>UI 使用 <code>GET /notifications?unread=true</code> 与 <code>POST /notifications/{id}/read</code>。活动简要记录使用 <code>GET /activities/{id}/events?before=&lt;seq&gt;</code>，同样过滤课程、凭据和其他私人内容。</p>
+<h2 id="d2-h48">12. AstrBot 插件与 Bot API</h2>
+<h3 id="d2-h49">12.1 集成方向</h3>
+<p>插件向 Web 服务发起 HTTP 请求，不要求 Web 服务连接 AstrBot 管理后台。主动推送采用<strong>服务器持久化通知、插件长轮询取出并发送</strong>的方式：无需给 Bot 额外开放入站端口，也无需依赖某个版本管理面板的 HTTP API。</p>
+<p>插件用官方 <code>@filter.command_group(&quot;羽球&quot;)</code> 注册指令，读取事件中的真实 sender_id、platform_id、message_id 和 unified_msg_origin。主动消息通过 <code>context.send_message(umo, MessageChain)</code> 发送，这是官方文档给出的机制。[T5][T6]</p>
+<p>插件配置只需 <code>base_url</code>、<code>bot_key</code>、<code>api_token</code>。base_url 为 ShuttleUp 的 HTTPS 地址。服务端通过环境变量配置可接受的 bot_key 与服务 token；前端不接触 token。插件卸载或重载时关闭 httpx client 和轮询协程。</p>
+<h3 id="d2-h50">12.2 命令请求</h3>
+<pre><code class="language-http">POST /bot/v1/commands
+Authorization: Bearer &lt;service-token&gt;
+Idempotency-Key: astrbot:qq:message-123
+Content-Type: application/json
+</code></pre>
+<pre><code class="language-json">{
+  &quot;bot_key&quot;: &quot;main&quot;,
+  &quot;platform_id&quot;: &quot;qq&quot;,
+  &quot;sender_id&quot;: &quot;12345678&quot;,
+  &quot;umo&quot;: &quot;平台实际返回的完整UMO，不自行拼装&quot;,
+  &quot;message_id&quot;: &quot;message-123&quot;,
+  &quot;command&quot;: &quot;expense.create&quot;,
+  &quot;activity_code&quot;: &quot;B6R2&quot;,
+  &quot;args&quot;: {&quot;kind&quot;: &quot;shuttle&quot;, &quot;quantity&quot;: 4}
+}
+</code></pre>
+<p>服务端从认证 token 决定 bot_key，并要求请求声明一致；通过 bot_identity 解析用户。客户端不能传入任意 Web user_id 代表他人。只接受已实现的 command 枚举与对应 Pydantic 参数模型，不提供执行任意服务方法的反射入口。</p>
+<p>返回统一回复结构：</p>
+<pre><code class="language-json">{
+  &quot;command_id&quot;: &quot;cmd-123&quot;,
+  &quot;reply&quot;: {
+    &quot;mode&quot;: &quot;same_context&quot;,
+    &quot;text&quot;: &quot;已记录球费 ¥48.00：4 个 × ¥12.00，垫付人：你。费用编号 E3K7。&quot;,
+    &quot;links&quot;: [{&quot;label&quot;: &quot;查看费用&quot;, &quot;path&quot;: &quot;/a/activity-a/bill&quot;}]
+  },
+  &quot;resource&quot;: {&quot;type&quot;: &quot;expense&quot;, &quot;id&quot;: &quot;expense-1&quot;, &quot;version&quot;: 1}
+}
+</code></pre>
+<p><code>mode</code> 为 <code>same_context/private</code>。服务端返回相对 path，插件使用配置的 base_url 拼接；不接受聊天用户提供任意 URL 作为登录或收款入口。账单在群里请求时，同群回复“已私发个人账单”或仅公开账单入口，具体个人余额使用绑定的私聊 UMO 发送。</p>
+<h3 id="d2-h51">12.3 命令到服务映射</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Web/Bot 业务名称</th>
+<th>Bot command 枚举</th>
+<th>调用或返回</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>帮助</td>
+<td><code>help</code></td>
+<td>固定帮助模板</td>
+</tr>
+<tr>
+<td>绑定账户／关联群</td>
+<td><code>identity.bind</code> / <code>context.bind</code></td>
+<td>消耗对应一次性 token</td>
+</tr>
+<tr>
+<td>创建／列出／当前／切换</td>
+<td><code>activity.create/list/current/switch</code></td>
+<td>活动服务与 context 当前指向</td>
+</tr>
+<tr>
+<td>加入／退出</td>
+<td><code>participant.join/leave</code></td>
+<td>相同成员服务；join 通过已授权群关联判断范围</td>
+</tr>
+<tr>
+<td>课表</td>
+<td><code>schedule.open</code></td>
+<td>个人时间页</td>
+</tr>
+<tr>
+<td>有空／没空</td>
+<td><code>availability.set</code></td>
+<td>规则服务，state=free/busy</td>
+</tr>
+<tr>
+<td>时间／推荐／场地</td>
+<td><code>availability.summary</code> / <code>candidate.list</code> / <code>venue.list</code></td>
+<td>相同查询服务</td>
+</tr>
+<tr>
+<td>选择／已订</td>
+<td><code>plan.open_select</code> / <code>booking.open_create</code></td>
+<td>带稳定候选 ID 的网页表单</td>
+</tr>
+<tr>
+<td>参加／不参加</td>
+<td><code>rsvp.set</code></td>
+<td>相同 rsvp 服务</td>
+</tr>
+<tr>
+<td>到场／缺席</td>
+<td><code>attendance.set</code></td>
+<td>本人到场状态</td>
+</tr>
+<tr>
+<td>场地／球／AA 记账</td>
+<td><code>expense.create</code></td>
+<td>本人垫付；quantity 或整数 amount_cents</td>
+</tr>
+<tr>
+<td>指定人员记账</td>
+<td><code>expense.open_split</code></td>
+<td>预填金额的费用抽屉链接</td>
+</tr>
+<tr>
+<td>账单</td>
+<td><code>bill.show</code></td>
+<td>本人视角 DTO</td>
+</tr>
+<tr>
+<td>已付／收款</td>
+<td><code>payment.claim/confirm</code></td>
+<td>指定转账或付款声明对应服务</td>
+</tr>
+<tr>
+<td>结算／结束／取消</td>
+<td><code>bill.open_publish/activity.open_finish/activity.open_cancel</code></td>
+<td>对应确认页，不先执行状态切换</td>
+</tr>
+</tbody>
+</table></div>
+<p>所有指令的中文语法以 PRD 表格为准。解析器只解析明确的日期、时段、金额和命名参数；无法匹配时回复该指令的一个有效示例，不调用 LLM 猜测。Bot 记账球的“4个”和球费的“48”走不同参数模型。指定活动短号优先于 context.current_activity_id；未指定且没有当前活动时只返回本群活动选择列表。</p>
+<p>重复的平台 message_id 返回相同 command 结果，不再次写账。只生成操作链接的请求也不提前创建空费用或空订单。</p>
+<h3 id="d2-h52">12.4 绑定 API</h3>
+<p>Web 提供 <code>POST /me/bot-bind-token</code>、<code>POST /activities/{id}/bot-bind-token</code>、<code>DELETE /me/bot-identities/{id}</code> 与 <code>DELETE /activities/{id}/bot-links/{link_id}</code>。token 使用 12 位随机字母数字，10 分钟有效，单次消费。Web 账号绑定要求在私聊执行，绑定后保存 private_umo；群绑定只允许 Web 主持人的已绑定平台身份消费。</p>
+<p>UMO 作为平台给出的不透明字符串保存，不能由 QQ 群号或 Telegram ID 自行猜测拼装。[T6] 一个 context 可以关联多场活动；切换当前只修改 current_activity_id，不关闭其他活动通知。</p>
+<h3 id="d2-h53">12.5 通知长轮询 API</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方法与路径</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /bot/v1/deliveries?wait=25&amp;limit=20</code></td>
+<td>等待该 bot_key 可发送通知，原子租用并返回</td>
+</tr>
+<tr>
+<td><code>POST /bot/v1/deliveries/{id}/ack</code></td>
+<td>发送成功，记录平台 message_id（若可取得）</td>
+</tr>
+<tr>
+<td><code>POST /bot/v1/deliveries/{id}/fail</code></td>
+<td>记录本次错误、释放租约并设置下一次尝试时间</td>
+</tr>
+</tbody>
+</table></div>
+<p>返回示例：</p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [{
+    &quot;id&quot;: &quot;notification-1&quot;,
+    &quot;lease_token&quot;: &quot;一次租用随机值&quot;,
+    &quot;umo&quot;: &quot;已绑定的目标UMO&quot;,
+    &quot;event_type&quot;: &quot;booking.confirmed&quot;,
+    &quot;text&quot;: &quot;周六 18:00–20:00，A馆 3号场，已订好。&quot;,
+    &quot;links&quot;: [{&quot;label&quot;: &quot;查看活动&quot;, &quot;path&quot;: &quot;/a/activity-a&quot;}]
+  }]
+}
+</code></pre>
+<p>通知租约 60 秒，ack/fail 必须带相同 lease_token；保存租约 token 的哈希。插件限制并发投递，调用官方发送接口完成后再 ack。失败后按 5/30/120/600 秒间隔重试，累计 5 次失败在设置页显示为 failed，管理员可重试。这是有限的消息投递机制，不用于反复重试已经失败的业务操作。</p>
+<p>业务命令可以严格幂等；IM 平台若不支持发送幂等，在“已发出但 ack 未到达”的瞬间仍可能重复展示消息，因此插件回复附活动短号和账单版本，后台不以 IM 送达来决定是否扣款或是否订场成功。</p>
+<h2 id="d2-h54">13. 前端实现与视觉规格</h2>
+<h3 id="d2-h55">13.1 设计令牌</h3>
+<pre><code class="language-css">:root {
+  --bg: #f7f8f5;
+  --surface: #ffffff;
+  --text: #182923;
+  --muted: #5d6d64;
+  --line: #e1e7e2;
+  --primary: #087f72;
+  --primary-soft: #e5f4ef;
+  --danger: #b33b3b;
+  --warning: #875d12;
+  --unknown: #edf0ee;
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --content-width: 1200px;
+  --control-height: 44px;
+}
+</code></pre>
+<p>基础字体采用 <code>-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;PingFang SC&quot;,&quot;Microsoft YaHei&quot;,sans-serif</code>，数字使用 <code>font-variant-numeric: tabular-nums</code>。正文 15–16px、行高 1.5；页面标题 26px/34px；候选时间 22px/30px；主要账款 32px/40px；辅助说明 13px/20px。</p>
+<p>只有主操作使用实心青绿按钮，其余为白底描边或文字按钮。边框承担主要分组作用，阴影仅用于悬浮层和极轻的卡片浮起。金额右对齐，时间区间使用一致的短横线格式。按钮和状态不依赖 emoji 表达。</p>
+<h3 id="d2-h56">13.2 活动页布局</h3>
+<pre><code class="language-text">桌面（最大 1200px）
+┌───────────────────────────────────────────────────────────────┐
+│ ShuttleUp                         我的时间      个人头像       │
+│ 周末打球                         收集时间        分享邀请      │
+│ 安排    成员    费用                                         │
+├───────────────────────────────────────┬───────────────────────┤
+│ 推荐方案                              │ 这场球的进度          │
+│ 周六 18:00–20:00                      │ 5/6 已提交时间        │
+│ A馆 · 2 块连续可用 · ¥120             │ 拟参加成员头像        │
+│ 5 人有空              [选择这个方案] │                       │
+│                                       │ 我的时间              │
+│ 其他两个候选                          │ [修改本次时间]        │
+│                                       │                       │
+│ 共同时间表（可折叠）                  │ 最新活动记录          │
+└───────────────────────────────────────┴───────────────────────┘
+</code></pre>
+<p>手机页面顶部保留标题、状态和分享，标签固定在内容上方。主要候选单列，成员进度移到候选上方的一行摘要；“共同时间”默认折叠。底部操作栏依据角色与状态显示一个主动作：加入、填写时间、选择方案、登记订场、回应参加或结算。</p>
+<p>已确定活动将候选区替换为固定集合卡：具体日期、时间、场馆地址、球场、回应名单。账务阶段主卡优先显示个人应付／应收。收集、确认、结算三个阶段仍是同一活动页的不同内容，不重新发明三个页面体系。</p>
+<h3 id="d2-h57">13.3 时间编辑器</h3>
+<p>桌面七列日期 + 时间轴，15 分钟一格，支持鼠标 pointer drag；手机默认单日／三日，点击起止点后显示小型操作条。控件另提供日期和起止时间表单，键盘与触屏均可使用。</p>
+<p>时间格的颜色来自最终解析状态；个人编辑模式用边界和小标签区分“本次覆盖”和“基础规则”。只画活动允许的时间范围，展示周切换。拖选区间提交后用后端解析结果替换，不由前端自行复刻优先级算法。</p>
+<h3 id="d2-h58">13.4 组件边界</h3>
+<p>基础组件：Button、TextField、Select、Dialog/Drawer、Toast、Badge、Tabs。领域组件：CandidateCard、AvailabilityGrid、ParticipantList、BookingSummary、ExpenseEditor、BillSummary、TransferRow、FreshnessLabel。</p>
+<p>可访问的 Dialog/Drawer 可以使用一个按需导入的轻量 headless 依赖，或正确实现 focus trap、Escape、焦点恢复；不引入整套组件库只为了一个弹窗。日期和时间输入尽量用原生控件，补足统一标签与样式。</p>
+<p>应用状态仅分 session、当前活动查询缓存、编辑表单草稿。使用 composable 和 typed fetch 即可，不同时引入多个全局状态库。金额计算、时间覆盖和候选排名都以后端结果为准。</p>
+<h3 id="d2-h59">13.5 实时更新与视觉稳定</h3>
+<p>SSE 到达后按 resource 使对应查询失效，150ms 内合并重复刷新。不关闭用户正在填写的抽屉、不重置表单、不滚回顶部。候选排序有变化时保留当前滚动和正在操作的卡片，显示“方案已更新”小提示，在用户结束操作后应用新排序。</p>
+<p>只读页面允许自然刷新；编辑表单遇到版本变化保存原输入并指示需要核对的字段。输入和提交按钮有明确 loading 状态，但普通点击不添加多重确认弹窗。过期场地显示“待刷新 · 最近成功 12:00”，不把整页替换成错误大图。</p>
+<h3 id="d2-h60">13.6 分享与可用性</h3>
+<p>分享卡先交付可复制文本与邀请链接，不依赖图片生成服务。移动端可用时调用原生 Web Share，否则使用复制按钮；这是同一分享功能的浏览器能力差异，不做额外分享平台集成。</p>
+<p>测试至少覆盖 390×844、768×1024、1280×800。截图检查主按钮层级、金额对齐、空状态和弹窗键盘操作。页面级横向滚动为失败；局部时间表可以在明确容器内切换日期。核心文本对比度达到 4.5:1，触控目标不小于 44px。</p>
+<h2 id="d2-h61">14. 测试与验收数据</h2>
+<h3 id="d2-h62">14.1 纯算法测试</h3>
+<p>时间测试覆盖层级覆盖、同层最后编辑、生效期、左右开闭、跨天、课程指定周次、缺省 unknown、活动隔离，以及同区间包含一段 busy 时整段不是 free。候选测试覆盖人数上限、核心成员、多个场数、固定球场连续性、分段报价和未知价格。</p>
+<p>金额测试覆盖 100 元三人分摊、2 分四人分摊、1 分三人分摊、多付款人、精确分摊、多次退款、部分转账、修订保留付款。必须检验 <code>0.02 元 / 4 人 = [0.01,0.01,0,0]</code>，任何正支出不能出现负分摊。</p>
+<p>性质测试使用固定随机种子生成不少于 1000 组数据：均分守恒、精确分摊守恒、全体净额之和为零、按生成转账全部确认后净额归零、打乱输入顺序不改变按 join_order 的确定结果。</p>
+<h3 id="d2-h63">14.2 API 与权限测试</h3>
+<p>用临时 SQLite 文件而不只用内存库，验证 WAL、事务、迁移和重启。至少三套会话：主持人、成员、未加入者。以真实 HTTP 请求测试状态转换、越权、CSRF、邀请撤销、重复提交费用、并发确认同一付款以及过期 candidate。</p>
+<p>测试 <code>record_booking</code> 只在完整覆盖时确认活动；未支付订单不记垫付；一次实际付款同时生成费用和事件。出账过程与另一个费用写入竞争时，只允许基于正确 generation 的版本发布。</p>
+<h3 id="d2-h64">14.3 浏览器端到端场景</h3>
+<p>E2E 使用四个独立 browser context，跑完 PRD A01–A31 可自动化的业务路径。重点场景不使用前端拦截假 API：数据库和后端真实启动，只有外部场馆 HTTP、WakeUp HTTP 和 IM 发送替换为固定 fixture。</p>
+<p>至少完成两个全流程：正常四人打球并分次结清；活动取消后处理不可退费用和实际退款。实时测试在两个已打开页面修改时间，验证另一页面在 2 秒目标内更新。Bot 模拟发送同一 message_id 两次，数据库只新增一笔费用。</p>
+<h3 id="d2-h65">14.4 固定验收数据</h3>
+<p>测试 clock 注入固定 <code>2026-09-18T12:00:00+08:00</code>，不依赖执行当天日期。开发演示种子使用相对未来日期，避免演示打开即过期。所有样本标记 <code>demo/test</code> 来源。</p>
+<p>A/B/C/D 为四位测试成员，join_order=1/2/3/4；场地费用 A 垫 12000 分，球费 B 垫 4800 分，停车 C 垫 2000 分由 A/C 均分。期望净额 <code>[6800,600,-3200,-4200]</code>，期望转账 <code>D→A 4200、C→A 2600、C→B 600</code>。</p>
+<p>第二份样本含 5 位成员、一个 unknown、一位核心成员、一条活动局部忙碌覆盖、一组不连续的场地以及一组仅聚合余量，用于展示候选差异。真实 Provider 联调另保存去除凭据的响应，不把演示数据标成生产网站。</p>
+<h2 id="d2-h66">15. 运行、部署与性能预算</h2>
+<h3 id="d2-h67">15.1 开发命令契约</h3>
+<p>以下命令是仓库需要实现并在 README 验证的入口，不代表当前骨架已经包含全部脚本：</p>
+<pre><code class="language-bash">uv sync --group dev
+uv run alembic -c backend/alembic.ini upgrade head
+uv run shuttleup admin create
+uv run uvicorn shuttleup.app:app --reload --port 8000
+
+npm --prefix frontend ci
+npm --prefix frontend run dev
+
+uv run pytest backend/tests
+npm --prefix frontend run typecheck
+npm --prefix frontend run test:unit -- --run
+npm --prefix frontend run build
+npm --prefix frontend run test:e2e
+</code></pre>
+<p>包配置须让根目录 <code>uv run</code> 正确发现 backend/shuttleup。Vite 开发服务器将 <code>/api</code> 和 SSE 转发到 Python；生产静态资源复制到 Python 包的 static 目录。构建时生成静态文件，生产不运行 npm。</p>
+<h3 id="d2-h68">15.2 环境配置</h3>
+<pre><code class="language-dotenv">APP_BASE_URL=https://shuttleup.example
+APP_TIMEZONE=Asia/Shanghai
+APP_SECRET=replace-with-a-random-secret
+DATABASE_URL=sqlite:////data/shuttleup.db
+SESSION_COOKIE_SECURE=true
+ASTRBOT_MAIN_TOKEN=replace-with-a-random-service-token
+LOG_LEVEL=INFO
+</code></pre>
+<p><code>.env.example</code> 仅包含说明和占位值；实际凭据不提交。场馆 Provider 的 credential_env 指向部署环境中的专用变量名。生产环境将 <code>/data</code> 挂载为持久卷。</p>
+<p>多阶段 Dockerfile 在 Node 构建阶段编译前端，在 Python 运行阶段安装锁定依赖并复制前端。默认镜像不包含 Chromium。<code>compose.yaml</code> 只有 app 服务和数据卷；对公网部署可接用户已有 HTTPS 反向代理，文档提供一份简短配置，并禁用 SSE 缓冲。</p>
+<p>容器启动先执行数据库迁移再启动单 worker 服务。<code>GET /healthz</code> 检查进程，<code>GET /readyz</code> 检查数据库与迁移状态。来源故障在设置页单独呈现，不让某个场馆不可用变成整个应用不就绪。</p>
+<p>备份命令 <code>shuttleup backup /path/to/backup.db</code> 使用 SQLite backup API；恢复使用停止服务后替换数据库的操作说明。日志记录请求 ID、状态、耗时、来源查询摘要和通知结果，不记录课程口令、Cookie、密码或 Bot token。</p>
+<h3 id="d2-h69">15.3 预算与测量</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>验收目标与测量条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>部署规模</td>
+<td>一个 app 服务、一个持久数据卷</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>不含浏览器型 Provider：空闲 RSS 目标 &lt;180MB，512MB 容器限制下通过完整 E2E</td>
+</tr>
+<tr>
+<td>首屏资源</td>
+<td>活动页初始 JS ≤180KB gzip，CSS ≤30KB gzip</td>
+</tr>
+<tr>
+<td>数据规模</td>
+<td>100 用户、20 场待处理活动、每场最多 30 人、14 天查询范围</td>
+</tr>
+<tr>
+<td>普通 API</td>
+<td>1 vCPU 条件下，20 并发用户常用内部查询 p95 &lt;300ms；不含外部网络等待</td>
+</tr>
+<tr>
+<td>候选计算</td>
+<td>30 人、3 场馆、14 天样本的单次纯计算目标 &lt;100ms</td>
+</tr>
+<tr>
+<td>人员／账单同步</td>
+<td>服务端提交到另一已打开页面目标 ≤2 秒</td>
+</tr>
+<tr>
+<td>场地同步</td>
+<td>网站查询周期 + 查询耗时 + 页面同步，界面始终展示实际查询时间</td>
+</tr>
+</tbody>
+</table></div>
+<p>这些是测试预算，需要写入实测报告；达不到时先定位慢查询、重复计算或依赖体积，不直接新增缓存服务。若之后确有持续写入瓶颈，迁移数据库到 PostgreSQL；跨进程派发器和独立 worker 在那时再替换现有接口，V1 不提前部署。</p>
+<h2 id="d2-h70">16. Codex 分阶段实施计划</h2>
+<p>按可使用的纵向切片开发，每阶段同时交付对应界面、API、测试和简短运行说明。不要先把全部数据库表和空路由铺完，再把前端留到最后。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>实现内容</th>
+<th>阶段完成条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M0 基础体验</td>
+<td>项目结构、锁文件、迁移、登录／访客、视觉令牌、主页壳、CI</td>
+<td>可启动并创建账户；手机与桌面基础布局完成</td>
+</tr>
+<tr>
+<td>M1 约人约时间</td>
+<td>创建活动、邀请加入、手工周期／一次性规则、共同时间、SSE</td>
+<td>两个浏览器加入同活动，修改忙闲自动同步；A01–A03、A06–A09</td>
+</tr>
+<tr>
+<td>M2 WakeUp</td>
+<td>分享预览、规范化、确认替换、课程周次、个人时间编辑器</td>
+<td>课程 fixture 全通过，真实口令联调通过；A04–A07</td>
+</tr>
+<tr>
+<td>M3 场地与方案</td>
+<td>Provider 协议、人工与 JSON 源、首个真实站点、轮询、连续场地算法、候选卡</td>
+<td>不连续场地不能组成推荐；真实查询可见；A10–A16</td>
+</tr>
+<tr>
+<td>M4 确定一场球</td>
+<td>名单、RSVP、多个订单、支付登记、改约、到场、结束／取消</td>
+<td>一场活动由 collecting 到 finished，可取消并保留费用；A15–A18、A21</td>
+</tr>
+<tr>
+<td>M5 完整分账</td>
+<td>全局费率、球费、指定分摊、出账、部分付款、确认、修订、退款、归档</td>
+<td>金额性质测试及两个结算流程通过；A19–A26</td>
+</tr>
+<tr>
+<td>M6 AstrBot</td>
+<td>身份绑定、群关联、全部指令、通知长轮询、群消息模板</td>
+<td>测试插件 + 实际 Bot 完成创建、记账与主动通知；A27–A29</td>
+</tr>
+<tr>
+<td>M7 完整验收</td>
+<td>响应式完善、E2E、部署、备份恢复、性能预算、来源联调记录</td>
+<td>A01–A32 全部有结果，演示来源与真实来源明确分离</td>
+</tr>
+</tbody>
+</table></div>
+<p>每阶段建立一个清晰提交，更新 <code>docs/IMPLEMENTATION-STATUS.md</code>：已实现需求编号、运行命令、通过的测试、真实接入状态。只按实际执行结果打勾；完成 M0/M1 不等于应用交付完成。</p>
+<p>真实 WakeUp 口令或目标网站尚未提供时，可以继续开发其他模块和基于已取得样本的契约测试；对应“真实联调”条目保持未验收。不能用人工录入替代已承诺的 WakeUp 分享导入，也不能用固定假场地替代网站爬取功能。</p>
+<h2 id="d2-h71">17. 核心一致性检查表</h2>
+<p>完成实现前逐项检查以下不变量。它们是产品正确性的定义，不是增加用户操作的额外流程。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>范围</th>
+<th>必须成立</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>身份</td>
+<td>一个活动的一个 Web 用户只有一条 participant；主持人身份由后端关系决定</td>
+</tr>
+<tr>
+<td>时间</td>
+<td>空白是 unknown；只在完整时长全部 free 时计为有空；本次规则不泄露到其他活动</td>
+</tr>
+<tr>
+<td>场地</td>
+<td>具名同场连续；聚合数量不冒充具体场地；过期余量不参与 verified</td>
+</tr>
+<tr>
+<td>活动</td>
+<td>选方案不等于订场；预约网站余量变动不撤销本地已登记的订单</td>
+</tr>
+<tr>
+<td>人员</td>
+<td>可用时间、拟参加、回应、实际到场不混同</td>
+</tr>
+<tr>
+<td>费用</td>
+<td>估计不等于垫付；正支出分配不出现负值；每笔分摊总和等于该笔金额</td>
+</tr>
+<tr>
+<td>付款</td>
+<td>声明不等于到账；收款人确认后才计入余额；重复请求不重复入账</td>
+</tr>
+<tr>
+<td>修订</td>
+<td>历史快照不变；已确认转账保留；新账单只计算实际剩余债务</td>
+</tr>
+<tr>
+<td>取消</td>
+<td>活动取消不删除费用、退款或已确认转账</td>
+</tr>
+<tr>
+<td>同步</td>
+<td>Web 与 Bot 调用同一业务服务；事件与业务事务一起提交</td>
+</tr>
+<tr>
+<td>界面</td>
+<td>核心操作在手机可完成；主要按钮只有一个；输入中的表单不被实时更新冲掉</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="d2-h72">18. 外部依据与联调记录</h2>
+<p>资料核对日期：2026-09-11。下面的资料支撑外部机制；表结构和业务算法属于本项目的实现设计。</p>
+<ul>
+<li>[T1] FastAPI 官方 Lifespan Events：<code>https://fastapi.tiangolo.com/advanced/events/</code></li>
+<li>[T2] MDN Using server-sent events：<code>https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events</code></li>
+<li>[T3] SQLite 官方 Write-Ahead Logging，含并发说明与 WAL-reset 修复说明：<code>https://www.sqlite.org/wal.html</code></li>
+<li>[T4] WakeUp 官方导入说明与分享数据生命周期：<code>https://www.wakeup.fun/doc/import_schedule.html</code>、<code>https://www.wakeup.fun/policy.html</code></li>
+<li>[T5] AstrBot 官方消息事件与指令组：<code>https://docs.astrbot.app/dev/star/guides/listen-message-event.html</code></li>
+<li>[T6] AstrBot 官方主动消息与 UMO：<code>https://docs.astrbot.app/dev/star/guides/send-message.html</code></li>
+<li>[T7] Vue 官方性能建议，含构建、按需依赖与包体控制：<code>https://vuejs.org/guide/best-practices/performance</code></li>
+</ul>
+<p>真实联调材料保存到 <code>docs/integrations/</code>：WakeUp 的已验证分享请求与字段映射、首个场馆的查询范围与刷新频率、已脱敏响应位置、AstrBot 的实际安装版本及一次指令／主动消息测试结果。不用口述“已兼容”代替这些记录。</p>
+</article><footer>阅读版由原始 Markdown 生成。开发时以同目录 Markdown 文档为准；本阅读版无需联网或外部字体。</footer></main></div></body></html>

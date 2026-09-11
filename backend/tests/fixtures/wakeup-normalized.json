@@ -1,0 +1,17 @@
+{
+  "provider_key": "wakeup",
+  "label": "2026秋季课表",
+  "timezone": "Asia/Shanghai",
+  "term_start_monday": "2026-09-07",
+  "term_end_date": "2026-10-04",
+  "periods": [
+    {"index": 1, "start": "08:00", "end": "08:45"},
+    {"index": 2, "start": "08:55", "end": "09:40"},
+    {"index": 5, "start": "13:30", "end": "14:15"}
+  ],
+  "lessons": [
+    {"external_key": "redacted-1", "preview_title": "示例课程", "weekday": 3, "weeks": [1, 3], "period_indices": [1, 2]},
+    {"external_key": "redacted-2", "preview_title": "示例课程二", "weekday": 5, "weeks": [2, 4], "period_indices": [5]}
+  ],
+  "dated_occurrences": [{"starts_at": "2026-09-26T10:00:00+08:00", "ends_at": "2026-09-26T10:45:00+08:00", "preview_title": "临时调课"}]
+}

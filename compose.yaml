@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_BASE_URL: ${APP_BASE_URL:?set APP_BASE_URL}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Shanghai}
+      APP_SECRET: ${APP_SECRET:?set APP_SECRET}
+      DATABASE_URL: sqlite:////data/shuttleup.db
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
+      ASTRBOT_MAIN_TOKEN: ${ASTRBOT_MAIN_TOKEN:?set ASTRBOT_MAIN_TOKEN}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WAKEUP_SHARE_ENDPOINT: ${WAKEUP_SHARE_ENDPOINT:-}
+    volumes:
+      - shuttleup-data:/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    mem_limit: 512m
+
+volumes:
+  shuttleup-data:
+
