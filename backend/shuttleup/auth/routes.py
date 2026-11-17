@@ -1,21 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import delete, select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import Participant, User, WebSession
-from ..security import hash_password, token_hash, verify_password
-from .schemas import GuestCreate, LoginRequest, PasswordUpdate, ProfileUpdate, RegisterRequest
+from ..models import Participant, User, WebSession, EmailIdentity
+from ..security import hash_password, token_hash, verify_password, session_expiry
+from ..config import get_settings
+from .recovery import issue_recovery
+from .schemas import GuestCreate, LoginRequest, PasswordUpdate, ProfileUpdate
 from .service import COOKIE, create_session, csrf_for, current_user, public_user, require_csrf, require_user
 
 router = APIRouter(tags=["identity"])
 
 
 @router.get("/session")
-async def session(request: Request, db: Session = Depends(get_db)):
+async def session(request: Request, response: Response, db: Session = Depends(get_db)):
     user = current_user(request, db)
     raw = request.cookies.get(COOKIE)
+    response.headers["Cache-Control"] = "no-store"
+    if user and not user.username and not user.email_account and raw:
+        row = db.scalar(select(WebSession).where(WebSession.token_hash == token_hash(raw)))
+        expiry = session_expiry()
+        if row and row.expires_at < expiry - 24 * 3600 * 1000:
+            row.expires_at = expiry
+            db.commit()
+            response.set_cookie(COOKIE, raw, httponly=True, secure=get_settings().session_cookie_secure,
+                                samesite="lax", max_age=30 * 24 * 3600, path="/")
     return {"user": public_user(user) if user else None, "csrf_token": csrf_for(raw) if user and raw else None}
 
 
@@ -24,35 +34,27 @@ async def guest(body: GuestCreate, response: Response, db: Session = Depends(get
     user = User(display_name=body.display_name.strip())
     db.add(user); db.flush()
     csrf = create_session(db, response, user)
+    recovery_code = issue_recovery(db, user)
     db.commit()
-    return {"user": public_user(user), "csrf_token": csrf}
+    response.headers["Cache-Control"] = "no-store"
+    return {"user": public_user(user), "csrf_token": csrf, "recovery_code": recovery_code}
 
 
-@router.post("/auth/register", status_code=201)
-async def register(body: RegisterRequest, request: Request, response: Response, db: Session = Depends(get_db)):
-    user = current_user(request, db)
-    if user and user.username:
-        raise HTTPException(409, detail={"code": "ALREADY_REGISTERED", "message": "当前身份已有账号。"})
-    user = user or User(display_name=body.display_name or body.username)
-    user.username = body.username
-    user.password_hash = hash_password(body.password)
-    if body.display_name:
-        user.display_name = body.display_name.strip()
-    db.add(user)
-    try:
-        db.flush()
-    except IntegrityError:
-        raise HTTPException(409, detail={"code": "USERNAME_TAKEN", "message": "用户名已被使用。"})
-    csrf = create_session(db, response, user) if not request.cookies.get(COOKIE) else csrf_for(request.cookies[COOKIE])
-    db.commit()
-    return {"user": public_user(user), "csrf_token": csrf}
+@router.post("/auth/register", deprecated=True)
+async def register():
+    raise HTTPException(403, detail={"code": "REGISTRATION_DISABLED", "message": "用户名注册已关闭，请使用邮箱验证码注册。"})
 
 
 @router.post("/auth/login")
 async def login(body: LoginRequest, response: Response, db: Session = Depends(get_db)):
-    user = db.scalar(select(User).where(User.username == body.username.lower()))
+    identifier=body.username.strip().lower()
+    if "@" in identifier:
+        identity=db.get(EmailIdentity,identifier)
+        user=db.get(User,identity.user_id) if identity else None
+    else:
+        user = db.scalar(select(User).where(User.username == identifier))
     if not user or not user.password_hash or not verify_password(user.password_hash, body.password):
-        raise HTTPException(401, detail={"code": "INVALID_CREDENTIALS", "message": "用户名或密码不正确。"})
+        raise HTTPException(401, detail={"code": "INVALID_CREDENTIALS", "message": "账号或密码不正确。"})
     csrf = create_session(db, response, user)
     db.commit()
     return {"user": public_user(user), "csrf_token": csrf}

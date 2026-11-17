@@ -10,7 +10,7 @@ COOKIE = "shuttleup_session"
 
 
 def public_user(user: User) -> dict:
-    return {"id": user.id, "display_name": user.display_name, "username": user.username, "is_admin": user.is_admin, "timezone": user.timezone, "version": user.version}
+    return {"id": user.id, "display_name": user.display_name, "username": user.username, "email": user.email_account.email if user.email_account else None, "is_admin": user.is_admin, "timezone": user.timezone, "version": user.version}
 
 
 def create_session(db: Session, response: Response, user: User) -> str:
@@ -20,7 +20,16 @@ def create_session(db: Session, response: Response, user: User) -> str:
     return csrf_for(raw)
 
 
+class HelperRequest(Request):
+    """Internal principal after trusted Bot transport authentication; never built from HTTP fields."""
+    def __init__(self, user_id: str):
+        super().__init__({"type": "http", "headers": [], "method": "POST", "path": "/"})
+        self.helper_user_id = user_id
+
+
 def current_user(request: Request, db: Session) -> User | None:
+    if isinstance(request, HelperRequest):
+        return db.get(User, request.helper_user_id)
     raw = request.cookies.get(COOKIE)
     if not raw:
         return None
@@ -36,6 +45,8 @@ def require_user(request: Request, db: Session) -> User:
 
 
 def require_csrf(request: Request) -> None:
+    if isinstance(request, HelperRequest):
+        return  # Bot transport has already authenticated; no browser cookies are used.
     raw = request.cookies.get(COOKIE)
     if not raw or not hmac_compare(request.headers.get("x-csrf-token", ""), csrf_for(raw)):
         raise HTTPException(403, detail={"code": "FORBIDDEN", "message": "请求校验失败，请刷新页面后重试。"})

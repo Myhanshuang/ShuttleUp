@@ -1,3 +1,4 @@
+from conftest import join_times
 from datetime import datetime
 import uuid
 
@@ -16,7 +17,15 @@ async def make_guest(client,name):
     return data['user'],data['csrf_token']
 
 
-async def test_four_player_activity_to_partial_payments_and_archive(client):
+async def test_four_player_activity_to_partial_payments_and_archive(client, monkeypatch):
+    from shuttleup.venues import routes as venue_routes
+    class FixtureDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            from datetime import timezone
+            instant = datetime(2026, 9, 19, 0, tzinfo=timezone.utc)
+            return instant.astimezone(tz) if tz else instant.replace(tzinfo=None)
+    monkeypatch.setattr(venue_routes, "datetime", FixtureDateTime)
     host,host_csrf=await make_guest(client,'A')
     with client.testing_session_factory.begin() as db:
         db.get(User,host['id']).is_admin=True
@@ -25,10 +34,10 @@ async def test_four_player_activity_to_partial_payments_and_archive(client):
     created=(await client.post('/api/v1/activities',headers={'X-CSRF-Token':host_csrf},json={'title':'完整四人场','date_from':'2026-09-19','date_to':'2026-09-19','daily_windows':[{'weekdays':[6],'start_time':'18:00','end_time':'22:00'}],'min_players':4,'max_players':4,'venue_preferences':[venue_id]})).json();aid=created['id'];token=created['invite_token']
     others=[]
     for name in ['B','C','D']:
-        c=httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://testserver');user,csrf=await make_guest(c,name);joined=(await c.post(f'/api/v1/invites/{token}/join',json={})).json();others.append((name,c,user,joined['activity']['my_participant_id'],csrf))
+        c=httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://testserver');user,csrf=await make_guest(c,name);joined=(await c.post(f'/api/v1/invites/{token}/join',json={'availability': await join_times(client, token)})).json();others.append((name,c,user,joined['activity']['my_participant_id'],csrf))
     host_pid=created['my_participant_id']
     for _,c,_,_,csrf in [('A',client,host,host_pid,host_csrf),*others]:
-        response=await c.post('/api/v1/me/availability/rules',headers={'X-CSRF-Token':csrf},json={'rules':[{'state':'free','source':'activity','kind':'once','start_at':'2026-09-19T18:00:00+08:00','end_at':'2026-09-19T20:00:00+08:00','activity_id':aid}],'expected_revision':0});assert response.status_code==201
+        response=await c.post('/api/v1/me/availability/rules',headers={'X-CSRF-Token':csrf},json={'rules':[{'state':'free','source':'activity','kind':'once','start_at':'2026-09-19T18:00:00+08:00','end_at':'2026-09-19T20:00:00+08:00','activity_id':aid}],'expected_revision':0 if c is client else 1});assert response.status_code==201
     now=datetime.now().astimezone().isoformat()
     slots={'schema_version':1,'external_venue_id':'gym-a','local_date':'2026-09-19','timezone':'Asia/Shanghai','fetched_at':now,'coverage':{'starts_at':'2026-09-19T08:00:00+08:00','ends_at':'2026-09-19T22:00:00+08:00','complete':True,'identity_mode':'court'},'slots':[{'external_slot_id':'c1-18','court_id':'c1','court_name':'1号场','starts_at':'2026-09-19T18:00:00+08:00','ends_at':'2026-09-19T19:00:00+08:00','status':'available','price_cents':6000,'remaining_count':1},{'external_slot_id':'c1-19','court_id':'c1','court_name':'1号场','starts_at':'2026-09-19T19:00:00+08:00','ends_at':'2026-09-19T20:00:00+08:00','status':'available','price_cents':6000,'remaining_count':1}]}
     assert (await client.put(f'/api/v1/settings/venues/{venue_id}/manual-slots',headers={'X-CSRF-Token':host_csrf},json=slots)).status_code==200

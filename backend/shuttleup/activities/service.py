@@ -2,7 +2,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..common import from_ms
-from ..models import Activity, ActivityPlan, Event, Participant, User
+from ..models import Activity, ActivityPlan, Event, Participant, User, Venue
+from .attention import attention
 
 STATUS_LABELS = {"collecting": "收集时间", "booking": "待订场", "confirmed": "已确定", "finished": "待结算", "cancelled": "已取消"}
 
@@ -43,9 +44,11 @@ def activity_dto(db: Session, activity: Activity, viewer: User) -> dict:
         "duration_minutes": activity.duration_minutes, "min_players": activity.min_players,
         "max_players": activity.max_players, "court_count": activity.court_count,
         "venue_preferences": activity.venue_preferences, "decision_deadline": from_ms(activity.decision_deadline),
+        "venue_summary": [{"id": v.id, "name": v.name} for v in db.scalars(select(Venue).where(Venue.id.in_(activity.venue_preferences)))],
         "billing_status": activity.billing_status, "bill_generation": activity.bill_generation,
         "current_plan_id": activity.current_plan_id,
-        "current_plan": {"id":current_plan.id,"plan_no":current_plan.plan_no,"starts_at":from_ms(current_plan.starts_at),"ends_at":from_ms(current_plan.ends_at),"venue_id":current_plan.venue_id,"court_ids":current_plan.court_ids,"roster_participant_ids":current_plan.roster_participant_ids} if current_plan else None,
+        "current_plan": {"id":current_plan.id,"plan_no":current_plan.plan_no,"starts_at":from_ms(current_plan.starts_at),"ends_at":from_ms(current_plan.ends_at),"venue_id":current_plan.venue_id,"court_ids":current_plan.court_ids,"roster_participant_ids":current_plan.roster_participant_ids,"snapshot":current_plan.snapshot} if current_plan else None,
+        "next_action": attention(db, activity, viewer, participant, current_plan),
         "archived_at": from_ms(activity.archived_at), "cancel_reason": activity.cancel_reason,
         "participant_count": count, "my_participant_id": participant.id if participant else None,
         "my_membership": participant.membership if participant else None, "version": activity.version,

@@ -34,9 +34,9 @@ COPY --from=pybuilder --chown=shuttleup:shuttleup /app/.venv ./.venv
 COPY --chown=shuttleup:shuttleup pyproject.toml uv.lock ./
 COPY --chown=shuttleup:shuttleup backend/ ./backend/
 COPY --from=web --chown=shuttleup:shuttleup /src/backend/shuttleup/static ./backend/shuttleup/static
-COPY --chown=shuttleup:shuttleup scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
+COPY --chown=shuttleup:shuttleup scripts/ ./scripts/
+RUN chmod +x scripts/docker-entrypoint.sh
 USER shuttleup
 EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=2)"
 ENTRYPOINT ["/app/scripts/docker-entrypoint.sh"]
-

@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, time, timezone
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field, model_validator
@@ -16,7 +17,7 @@ router = APIRouter(tags=["availability"])
 
 
 class RuleCreate(BaseModel):
-    state: str = Field(pattern="^(free|busy|unknown)$")
+    state: str = Field(pattern="^(free|busy|uncertain|unknown|inherit)$")
     source: str = Field(pattern="^(baseline|weekly|one_off|activity)$")
     kind: str = Field(pattern="^(once|weekly)$")
     start_at: datetime | None = None
@@ -26,8 +27,21 @@ class RuleCreate(BaseModel):
 
     @model_validator(mode="after")
     def valid(self):
+        if self.state == "inherit" and (self.source != "activity" or self.kind != "once"):
+            raise ValueError("恢复个人时间仅用于本次活动的一次性覆盖")
         if self.kind == "once" and (not self.start_at or not self.end_at or self.end_at <= self.start_at): raise ValueError("一次性规则需要有效时间段")
-        if self.kind == "weekly" and not self.recurrence: raise ValueError("周期规则需要 recurrence")
+        if self.kind == "once" and (self.start_at.tzinfo is None or self.end_at.tzinfo is None): raise ValueError("时间必须包含时区")
+        if self.kind == "weekly":
+            rec = self.recurrence or {}
+            try:
+                days = rec["weekdays"]
+                if not days or any(type(d) is not int or d not in range(1, 8) for d in days): raise ValueError("请选择有效星期")
+                if rec["end_time"] != "24:00" and time.fromisoformat(rec["end_time"]) <= time.fromisoformat(rec["start_time"]): raise ValueError("结束时间必须晚于开始时间")
+                if date.fromisoformat(rec["valid_until"]) < date.fromisoformat(rec["valid_from"]): raise ValueError("日期范围无效")
+                time.fromisoformat(rec["start_time"])
+                ZoneInfo(rec.get("timezone", "Asia/Shanghai"))
+            except (KeyError, TypeError) as error:
+                raise ValueError("周期规则需要有效的星期、时段、日期和时区") from error
         if self.source == "activity" and not self.activity_id: raise ValueError("活动规则需要 activity_id")
         if self.source != "activity" and self.activity_id: raise ValueError("只有活动规则可以指定 activity_id")
         return self
@@ -54,6 +68,9 @@ async def get_availability(request: Request, from_: datetime | None = None, to: 
     if from_ and to:
         segments = resolve_availability([to_rule(r) for r in rules], Interval(from_, to), user.timezone)
         response["resolved"] = [{"start": s.span.start.isoformat(), "end": s.span.end.isoformat(), "state": s.state, "source": s.source} for s in segments]
+        if activity_id:
+            baseline = resolve_availability([to_rule(r) for r in rules if r.activity_id is None], Interval(from_, to), user.timezone)
+            response["personal_resolved"] = [{"start": s.span.start.isoformat(), "end": s.span.end.isoformat(), "state": s.state, "source": s.source} for s in baseline]
     return response
 
 
@@ -62,9 +79,26 @@ async def create_rules(body: RulesCreate, request: Request, db: Session = Depend
     user = require_user(request, db); require_csrf(request)
     if user.availability_revision != body.expected_revision:
         raise HTTPException(409, detail={"code": "VERSION_CONFLICT", "message": "时间表刚刚有更新。", "current_version": user.availability_revision})
-    user.availability_revision += 1
+    for activity_id in {r.activity_id for r in body.rules if r.activity_id}:
+        require_member(db, db.get(Activity, activity_id), user)
     created = []
     for rule in body.rules:
+        user.availability_revision += 1
+        if rule.state == "inherit":
+            start, end = to_ms(rule.start_at), to_ms(rule.end_at)
+            overlaps = db.scalars(select(AvailabilityRule).where(AvailabilityRule.user_id == user.id,
+                AvailabilityRule.activity_id == rule.activity_id, AvailabilityRule.source == "activity",
+                AvailabilityRule.kind == "once", AvailabilityRule.start_at < end, AvailabilityRule.end_at > start)).all()
+            if any(r.origin_plan_id for r in overlaps):
+                raise HTTPException(409, detail={"code": "PLAN_TIME_LOCKED", "message": "这段时间来自已确认参加的方案，请在活动内修改参加回应。"})
+            for old in overlaps:
+                for left, right in [(old.start_at, min(start, old.end_at)), (max(end, old.start_at), old.end_at)]:
+                    if left < right:
+                        db.add(AvailabilityRule(user_id=user.id, activity_id=rule.activity_id,
+                            source="activity", state=old.state, kind="once", start_at=left, end_at=right, edit_seq=old.edit_seq))
+                db.delete(old)
+            db.flush()
+            continue
         model = AvailabilityRule(user_id=user.id, activity_id=rule.activity_id, source=rule.source, state=rule.state, kind=rule.kind,
             start_at=to_ms(rule.start_at), end_at=to_ms(rule.end_at), recurrence=rule.recurrence, edit_seq=user.availability_revision)
         db.add(model); created.append(model)
@@ -91,5 +125,5 @@ async def shared_availability(activity_id: str,request: Request,from_: datetime=
         rows=db.scalars(select(AvailabilityRule).where(AvailabilityRule.user_id==p.user_id,(AvailabilityRule.activity_id.is_(None))|(AvailabilityRule.activity_id==activity_id))).all();resolved=resolve_availability([to_rule(r) for r in rows],Interval(from_,to),activity.timezone);resolved_by[p.id]=resolved
     boundaries=sorted({from_,to,*[s.span.start for segments in resolved_by.values() for s in segments],*[s.span.end for segments in resolved_by.values() for s in segments]});segments=[]
     for start,end in zip(boundaries,boundaries[1:]):
-        states={p.id:summarize_window(resolved_by[p.id],Interval(start,end)) for p in participants};segments.append({"starts_at":start.isoformat(),"ends_at":end.isoformat(),"free_count":sum(v=="free" for v in states.values()),"busy_count":sum(v=="busy" for v in states.values()),"unknown_count":sum(v=="unknown" for v in states.values()),"states":[{"participant_id":pid,"state":state} for pid,state in states.items()]})
+        states={p.id:summarize_window(resolved_by[p.id],Interval(start,end)) for p in participants};segments.append({"starts_at":start.isoformat(),"ends_at":end.isoformat(),"free_count":sum(v=="free" for v in states.values()),"busy_count":sum(v=="busy" for v in states.values()),"uncertain_count":sum(v=="uncertain" for v in states.values()),"unknown_count":sum(v=="unknown" for v in states.values()),"states":[{"participant_id":pid,"state":state} for pid,state in states.items()]})
     return {"activity_id":activity_id,"from":from_.isoformat(),"to":to.isoformat(),"participants":[{"id":p.id,"display_name":p.display_name,"required":p.required} for p in participants],"segments":segments}

@@ -5,7 +5,7 @@ from datetime import date, datetime, time, timedelta
 from typing import Literal
 from zoneinfo import ZoneInfo
 
-AvailabilityState = Literal["free", "busy", "unknown"]
+AvailabilityState = Literal["free", "busy", "uncertain", "unknown"]
 PRIORITY = {"baseline": 0, "course": 10, "weekly": 20, "one_off": 30, "activity": 40}
 
 
@@ -43,7 +43,7 @@ def _weekly_intervals(rule: Rule, query: Interval, timezone: str):
     while current <= final:
         if current.isoweekday() in rec.get("weekdays", []):
             start = datetime.combine(current, time.fromisoformat(rec["start_time"]), tz)
-            end = datetime.combine(current, time.fromisoformat(rec["end_time"]), tz)
+            end = datetime.combine(current + timedelta(days=1), time.min, tz) if rec["end_time"] == "24:00" else datetime.combine(current, time.fromisoformat(rec["end_time"]), tz)
             if end > start: yield Interval(start, end)
         current += timedelta(days=1)
 
@@ -73,5 +73,6 @@ def summarize_window(resolved: list[ResolvedSegment], query: Interval) -> Availa
     covered = [s for s in resolved if s.span.start < query.end and s.span.end > query.start]
     if any(s.state == "busy" for s in covered): return "busy"
     if covered and covered[0].span.start <= query.start and covered[-1].span.end >= query.end and all(s.state == "free" for s in covered): return "free"
+    if any(s.state == "uncertain" for s in covered): return "uncertain"
     return "unknown"
 

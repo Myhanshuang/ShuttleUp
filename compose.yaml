@@ -2,6 +2,8 @@ services:
   app:
     build: .
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       APP_BASE_URL: ${APP_BASE_URL:?set APP_BASE_URL}
       APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Shanghai}
@@ -10,13 +12,19 @@ services:
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       ASTRBOT_MAIN_TOKEN: ${ASTRBOT_MAIN_TOKEN:?set ASTRBOT_MAIN_TOKEN}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-127.0.0.1}
       WAKEUP_SHARE_ENDPOINT: ${WAKEUP_SHARE_ENDPOINT:-}
     volumes:
       - shuttleup-data:/data
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
     mem_limit: 512m
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   shuttleup-data:
-

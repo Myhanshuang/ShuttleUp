@@ -1,7 +1,7 @@
 name: astrbot_plugin_shuttleup
-display_name: ShuttleUp 羽球助手
+display_name: ShuttleUp 约球入口
 desc: 在群聊中创建约球、填写时间、查看候选、记账并接收主动通知
-version: 1.0.0
+version: 1.1.0
 author: ShuttleUp
 repo: https://example.invalid/shuttleup
 

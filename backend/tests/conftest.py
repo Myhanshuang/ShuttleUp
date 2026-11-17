@@ -26,3 +26,7 @@ async def client(tmp_path: Path):
         c.testing_session_factory = TestingSession
         yield c
     app.dependency_overrides.clear()
+
+async def join_times(client, token):
+    summary = (await client.get(f'/api/v1/invites/{token}')).json()
+    return [{'date': summary['date_from'], 'start': '08:00', 'end': '09:00'}]

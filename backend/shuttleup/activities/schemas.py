@@ -41,11 +41,29 @@ class ActivityCreate(BaseModel):
         return self
 
 
+class JoinAvailability(BaseModel):
+    date: date
+    start: str = Field(pattern=r"^(?:[01]\d|2[01]):[0-5]\d$")
+    end: str = Field(pattern=r"^(?:[01]\d|2[0-2]):[0-5]\d$")
+
+    @model_validator(mode="after")
+    def valid_interval(self):
+        if not "08:00" <= self.start < self.end <= "22:00":
+            raise ValueError("空闲时间须在 08:00–22:00 内，结束时间晚于开始时间")
+        return self
+
+
 class JoinRequest(BaseModel):
     display_name: str | None = Field(default=None, min_length=1, max_length=40)
+    availability: list[JoinAvailability] = Field(default_factory=list, max_length=28)
 
 
 class ActivityPatch(BaseModel):
+    duration_minutes: int | None = Field(default=None, ge=30, le=360, multiple_of=15)
+    date_from: date | None = None
+    date_to: date | None = None
+    daily_windows: list[DailyWindow] | None = Field(default=None, min_length=1, max_length=14)
+    venue_preferences: list[str] | None = Field(default=None, max_length=20)
     title: str | None = Field(default=None, min_length=1, max_length=80)
     decision_deadline: datetime | None = None
     expected_version: int

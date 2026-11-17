@@ -4,11 +4,15 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from .auth.routes import router as auth_router
+from .auth.recovery import router as recovery_router
+from .auth.email import router as email_router
+from .auth.password_reset import router as password_reset_router
 from .auth.settings_routes import router as settings_router
 from .activities.routes import router as activities_router
 from .activities.workflow_routes import router as workflow_router
@@ -37,6 +41,9 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="ShuttleUp API", version="1.0.0", lifespan=lifespan)
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(email_router, prefix="/api/v1")
+app.include_router(password_reset_router, prefix="/api/v1")
+app.include_router(recovery_router, prefix="/api/v1")
 app.include_router(settings_router, prefix="/api/v1")
 app.include_router(activities_router, prefix="/api/v1")
 app.include_router(workflow_router, prefix="/api/v1")
@@ -52,7 +59,7 @@ app.include_router(bot_router, prefix="/bot/v1")
 
 @app.exception_handler(RequestValidationError)
 async def validation_handler(_: Request, exc: RequestValidationError):
-    return JSONResponse(status_code=422, content={"error": {"code": "VALIDATION_ERROR", "message": "请检查输入内容。", "details": exc.errors()}})
+    return JSONResponse(status_code=422, content={"error": {"code": "VALIDATION_ERROR", "message": "请检查输入内容。", "details": jsonable_encoder([{key: error[key] for key in ("loc", "msg", "type") if key in error} for error in exc.errors()])}})
 
 
 @app.get("/healthz")

@@ -1,4 +1,11 @@
 .git
+.env
+.env.*
+.local
+backups
+release
+.codex
+.agents
 .github
 .venv
 .pytest_cache
@@ -8,6 +15,7 @@ frontend/dist
 frontend/playwright-report
 frontend/test-results
 backend/shuttleup/static/assets
+backend/shuttleup/static
 ShuttleUp-Codex-Spec-v1.0.zip
 shuttleup-spec
 *.pyc

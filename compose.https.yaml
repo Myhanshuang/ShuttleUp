@@ -1,0 +1,41 @@
+# docker compose -f compose.yaml -f compose.https.yaml up -d --build
+services:
+  app:
+    environment:
+      FORWARDED_ALLOW_IPS: "172.30.82.2"
+    networks:
+      edge:
+        ipv4_address: 172.30.82.3
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?set SITE_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      edge:
+        ipv4_address: 172.30.82.2
+    depends_on:
+      app:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+networks:
+  edge:
+    ipam:
+      config:
+        - subnet: 172.30.82.0/24
+volumes:
+  caddy-data:
+  caddy-config:

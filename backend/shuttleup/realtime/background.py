@@ -1,14 +1,14 @@
 import asyncio
-import hashlib
-import json
-import os
 from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 
 from ..db import SessionLocal
 from ..models import Activity, BotActivityLink, BotContext, Event, Notification, ProviderConfig, Venue, VenueSnapshot, now_ms
-from ..venues.providers import StandardJsonProvider
+from ..venues.service import refresh_day
+from ..venues.providers import supported_provider
+from ..venues.login import blocked
 
 NOTIFY_TYPES={"activity.created","activity.cancelled","activity.finished","plan.selected","booking.confirmed","bill.published","bill.settled","payment.confirmed"}
 
@@ -41,8 +41,9 @@ def due_queries():
                 venue=db.get(Venue,venue_id)
                 if not venue or not venue.enabled: continue
                 provider=db.get(ProviderConfig,venue.provider_id)
-                if not provider or not provider.enabled or provider.adapter_key!="standard_json": continue
-                current=date.fromisoformat(activity.date_from); final=date.fromisoformat(activity.date_to)
+                if not provider or not provider.enabled or provider.adapter_key == "manual" or not supported_provider(provider.adapter_key): continue
+                if blocked(provider): continue
+                current=max(date.fromisoformat(activity.date_from), datetime.now(timezone.utc).astimezone(ZoneInfo(venue.timezone)).date()); final=min(date.fromisoformat(activity.date_to),date.fromordinal(current.toordinal()+31))
                 while current<=final:
                     snapshot=db.scalar(select(VenueSnapshot).where(VenueSnapshot.venue_id==venue.id,VenueSnapshot.local_date==current.isoformat()))
                     if not snapshot or snapshot.next_poll_at<=now: result.append((provider.id,venue.id,current.isoformat()))
@@ -50,25 +51,12 @@ def due_queries():
     return result[:1]
 
 
-async def fetch_due(provider_id: str,venue_id: str,local_date: str):
+async def fetch_due(provider_id: str, venue_id: str, local_date: str):
     with SessionLocal() as db:
-        config=db.get(ProviderConfig,provider_id); venue=db.get(Venue,venue_id); settings=dict(config.config); credential=os.getenv(config.credential_env) if config.credential_env else None
-        headers={"Authorization":f"Bearer {credential}"} if credential else {}
-        provider=StandardJsonProvider(settings["endpoint"],settings["allowed_host"],headers); external=venue.external_venue_id; fresh=config.fresh_for_seconds; poll=config.min_poll_seconds
-    try: result=await provider.fetch_day(external,date.fromisoformat(local_date)); error=None
-    except Exception as exc: result=None; error=type(exc).__name__
-    with SessionLocal.begin() as db:
-        snapshot=db.scalar(select(VenueSnapshot).where(VenueSnapshot.venue_id==venue_id,VenueSnapshot.local_date==local_date)); now=now_ms()
-        if error:
-            if snapshot: snapshot.last_attempt_at=now; snapshot.last_error_code=error; snapshot.next_poll_at=now+poll*1000
-            return
-        content={"coverage":result.coverage.model_dump(mode="json"),"slots":[s.model_dump(mode="json") for s in result.slots]}; digest=hashlib.sha256(json.dumps(content,sort_keys=True).encode()).hexdigest(); changed=not snapshot or snapshot.content_hash!=digest
-        if not snapshot: snapshot=VenueSnapshot(venue_id=venue_id,local_date=local_date,revision=1,content_hash=digest,slots=content["slots"],coverage=content["coverage"],last_attempt_at=now,next_poll_at=now+poll*1000); db.add(snapshot)
-        else:
-            if changed: snapshot.revision+=1;snapshot.content_hash=digest;snapshot.slots=content["slots"];snapshot.coverage=content["coverage"]
-            snapshot.last_attempt_at=now;snapshot.next_poll_at=now+poll*1000
-        snapshot.last_success_at=int(result.fetched_at.timestamp()*1000);snapshot.last_error_code=None;snapshot.reported_stale_at=None
-        if changed: db.add(Event(type="venue.changed",activity_id=None,resource_version=snapshot.revision,payload={"venue_id":venue_id,"local_date":local_date,"revision":snapshot.revision}))
+        config = db.get(ProviderConfig, provider_id)
+        venue = db.get(Venue, venue_id)
+        if config and venue:
+            await refresh_day(db, venue, config, date.fromisoformat(local_date))
 
 
 async def venue_worker(stop: asyncio.Event):

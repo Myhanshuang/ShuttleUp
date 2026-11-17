@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
   "alembic>=1.16.5,<2",
   "argon2-cffi>=25.1.0,<26",
+  "email-validator>=2.2,<3",
   "fastapi>=0.116.1,<0.117",
   "httpx>=0.28.1,<1",
   "pydantic-settings>=2.10.1,<3",

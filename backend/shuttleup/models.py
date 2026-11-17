@@ -4,7 +4,7 @@ import time
 import uuid
 
 from sqlalchemy import Boolean, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
 
@@ -29,6 +29,7 @@ class User(Base, Versioned):
     display_name: Mapped[str] = mapped_column(String(40))
     username: Mapped[str | None] = mapped_column(String(32), unique=True)
     password_hash: Mapped[str | None] = mapped_column(Text)
+    email_account: Mapped[EmailIdentity | None] = relationship(uselist=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     timezone: Mapped[str] = mapped_column(String(64), default="Asia/Shanghai")
     availability_revision: Mapped[int] = mapped_column(Integer, default=0)
@@ -361,3 +362,50 @@ class OperationKey(Base):
 
 
 Index("ix_activities_host_status", Activity.host_user_id, Activity.status)
+
+
+class EmailIdentity(Base):
+    __tablename__ = "email_identities"
+    email: Mapped[str] = mapped_column(String(254), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), unique=True)
+    verified_at: Mapped[int] = mapped_column(Integer)
+
+
+class EmailChallenge(Base):
+    __tablename__ = "email_challenges"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    email: Mapped[str] = mapped_column(String(254), unique=True)
+    owner_user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    code_hash: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[int] = mapped_column(Integer)
+    sent_at: Mapped[int] = mapped_column(Integer)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    used_at: Mapped[int | None] = mapped_column(Integer)
+    delivered: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class EmailSendAttempt(Base):
+    __tablename__ = "email_send_attempts"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    email_hash: Mapped[str] = mapped_column(String(64), index=True)
+    ip_hash: Mapped[str] = mapped_column(String(64), index=True)
+    created_at: Mapped[int] = mapped_column(Integer, index=True)
+
+
+class GuestRecovery(Base):
+    __tablename__ = "guest_recovery"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    code_hash: Mapped[str] = mapped_column(String(64), unique=True)
+
+
+class PasswordResetChallenge(Base):
+    __tablename__ = "password_reset_challenges"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    email: Mapped[str] = mapped_column(String(254), unique=True)
+    user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    code_hash: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[int] = mapped_column(Integer)
+    sent_at: Mapped[int] = mapped_column(Integer)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    used_at: Mapped[int | None] = mapped_column(Integer)
+    delivered: Mapped[bool] = mapped_column(Boolean, default=False)

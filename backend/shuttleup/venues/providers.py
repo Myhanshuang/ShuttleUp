@@ -9,11 +9,18 @@ import httpx
 from pydantic import BaseModel, Field, model_validator
 
 
+class VenueSourceError(Exception):
+    def __init__(self, code: str):
+        self.code = code
+        super().__init__(code)
+
+
 class Coverage(BaseModel):
     starts_at: datetime
     ends_at: datetime
     complete: bool
     identity_mode: str = Field(pattern="^(court|aggregate)$")
+    booking_constraints: dict = Field(default_factory=dict)
 
 
 class VenueSlot(BaseModel):
@@ -74,5 +81,23 @@ class StandardJsonProvider:
         except httpx.HTTPError as error: return {"status": "error", "checked_at": datetime.now().astimezone().isoformat(), "message": type(error).__name__}
 
 
-PROVIDER_REGISTRY = {"standard_json": StandardJsonProvider, "manual": None, "site_adapter": None}
+def build_provider(adapter_key: str, settings: dict, credential_env: str | None = None):
+    import os
+    if adapter_key == "standard_json":
+        credential = os.getenv(credential_env) if credential_env else None
+        headers = {"Authorization": f"Bearer {credential}"} if credential else {}
+        return StandardJsonProvider(settings["endpoint"], settings["allowed_host"], headers)
+    from .local import extension_for
+    extension = extension_for(adapter_key)
+    if extension:
+        return extension.providers[adapter_key](credential_env)
+    raise VenueSourceError("ADAPTER_UNAVAILABLE")
+
+
+def supported_provider(key):
+    from .local import extension_for
+    return key in ("manual", "standard_json") or extension_for(key) is not None
+
+
+PROVIDER_REGISTRY = {"standard_json": StandardJsonProvider, "manual": None}
 

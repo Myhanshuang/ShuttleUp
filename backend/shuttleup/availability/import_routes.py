@@ -16,6 +16,7 @@ from ..db import get_db
 from ..models import AvailabilityRule, ScheduleImport
 from .routes import RuleCreate
 from .wakeup import WakeUpImporter, expand_occurrences
+from .wakeup_client import WakeUpError
 
 router = APIRouter(tags=["schedule-imports"])
 PREVIEWS: dict[tuple[str, str], tuple[float, object, list[dict]]] = {}
@@ -40,12 +41,16 @@ async def preview(body: PreviewRequest, request: Request, db: Session = Depends(
         if body.fixture_payload and get_settings().demo_mode: payload = body.fixture_payload.encode()
         else: payload = await importer.fetch(body.share_text)
         schedule = importer.normalize(payload); occurrences = expand_occurrences(schedule)
+    except WakeUpError as error:
+        raise HTTPException(502, detail={"code": error.code, "message": str(error)}) from None
     except RuntimeError:
         raise HTTPException(503, detail={"code": "WAKEUP_NOT_CONFIGURED", "message": "WakeUp 真实导入端点尚未配置。"})
-    except (ValueError, httpx.HTTPError) as error:
-        raise HTTPException(502, detail={"code": "WAKEUP_IMPORT_FAILED", "message": str(error)})
+    except (ValueError, httpx.HTTPError, KeyError, TypeError) as error:
+        raise HTTPException(502, detail={"code": "WAKEUP_IMPORT_FAILED", "message": "无法解析课表，请检查分享口令或重新分享。"}) from None
+    for key, entry in list(PREVIEWS.items()):
+        if entry[0] < time.monotonic() or key[0] == user.id: PREVIEWS.pop(key, None)
     preview_id = str(uuid.uuid4()); PREVIEWS[(user.id, preview_id)] = (time.monotonic()+600, schedule, occurrences)
-    return {"preview_id": preview_id, "term": {"start": schedule.term_start_monday.isoformat(), "end": schedule.term_end_date.isoformat(), "timezone": schedule.timezone}, "periods": schedule.periods, "busy_occurrences": occurrences, "summary": {"course_count": len(schedule.lessons), "occurrence_count": len(occurrences)}}
+    return {"preview_id": preview_id, "term": {"start": schedule.term_start_monday.isoformat(), "end": schedule.term_end_date.isoformat(), "timezone": schedule.timezone}, "periods": schedule.periods, "busy_occurrences": occurrences, "summary": {"course_count": len({l.get("external_key", i) for i, l in enumerate(schedule.lessons)}), "occurrence_count": len(occurrences)}}
 
 
 @router.post("/me/imports/wakeup/confirm")

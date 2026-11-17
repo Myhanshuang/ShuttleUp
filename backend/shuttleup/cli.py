@@ -44,6 +44,10 @@ def main():
     create.add_argument("--username"); create.add_argument("--password"); create.add_argument("--display-name")
     create.set_defaults(func=create_admin)
     b = sub.add_parser("backup"); b.add_argument("path"); b.set_defaults(func=backup)
+    from .venues.local import extensions
+    for extension in extensions():
+        if hasattr(extension, "register_cli"):
+            extension.register_cli(sub)
     args = parser.parse_args(); args.func(args)
 
 

@@ -24,3 +24,16 @@ def test_activity_override_beats_personal_rule():
     rules = [Rule("one_off", "busy", "once", 3, query.start, query.end), Rule("activity", "free", "once", 4, query.start, query.end)]
     assert summarize_window(resolve_availability(rules, query, "Asia/Shanghai"), query) == "free"
 
+
+
+def test_weekly_rule_can_end_at_midnight():
+    query = Interval(dt('2026-09-19T23:30'), dt('2026-09-20T00:00'))
+    rule = Rule('weekly', 'free', 'weekly', 1, recurrence={'weekdays': [6], 'start_time': '23:30', 'end_time': '24:00', 'valid_from': '2026-09-19', 'valid_until': '2026-09-19'})
+    assert summarize_window(resolve_availability([rule], query, 'Asia/Shanghai'), query) == 'free'
+
+
+def test_uncertain_is_explicit_and_not_free_or_default_unknown():
+    query = Interval(dt('2026-09-19T18:00'), dt('2026-09-19T20:00'))
+    rule = Rule('one_off', 'uncertain', 'once', 1, query.start, query.end)
+    assert summarize_window(resolve_availability([rule], query, 'Asia/Shanghai'), query) == 'uncertain'
+    assert summarize_window(resolve_availability([], query, 'Asia/Shanghai'), query) == 'unknown'

@@ -19,3 +19,9 @@ frontend/playwright-report/
 frontend/test-results/
 *.tsbuildinfo
 ShuttleUp-Codex-Spec-v1.0.zip
+
+# Machine-local integrations, their code, fixtures and configuration
+.local/
+backups/
+release/
+deploy/extensions/

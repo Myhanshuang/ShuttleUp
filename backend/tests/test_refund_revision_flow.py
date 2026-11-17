@@ -1,3 +1,4 @@
+from conftest import join_times
 import uuid
 
 import httpx
@@ -14,7 +15,7 @@ async def identity(client,name):
 
 async def test_settled_bill_refund_creates_reverse_transfer(client):
     host,hcsrf=await identity(client,'A');activity=(await client.post('/api/v1/activities',headers={'X-CSRF-Token':hcsrf},json={'title':'取消退款','min_players':2,'max_players':2})).json();aid=activity['id'];a=activity['my_participant_id']
-    member=httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://testserver');_,mcsrf=await identity(member,'B');joined=(await member.post(f"/api/v1/invites/{activity['invite_token']}/join",json={})).json();b=joined['activity']['my_participant_id']
+    member=httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://testserver');_,mcsrf=await identity(member,'B');joined=(await member.post(f"/api/v1/invites/{activity['invite_token']}/join",json={'availability': await join_times(client, activity['invite_token'])})).json();b=joined['activity']['my_participant_id']
     current=(await client.get(f'/api/v1/activities/{aid}')).json();await client.post(f'/api/v1/activities/{aid}/cancel',headers={'X-CSRF-Token':hcsrf},json={'reason':'场馆关闭','expected_version':current['version']});await client.put(f'/api/v1/activities/{aid}/attendance',headers={'X-CSRF-Token':hcsrf},json={'entries':[{'participant_id':a,'state':'absent'},{'participant_id':b,'state':'absent'}],'verify':True})
     expense=(await client.post(f'/api/v1/activities/{aid}/expenses',headers={'X-CSRF-Token':hcsrf,'Idempotency-Key':str(uuid.uuid4())},json={'kind':'venue','description':'不可退场地费','amount_cents':12000,'payer_participant_id':a,'split_mode':'equal','split_scope':'selected','shares':[{'participant_id':a},{'participant_id':b}]})).json();current=(await client.get(f'/api/v1/activities/{aid}')).json();bill=(await client.post(f'/api/v1/activities/{aid}/bill/publish',headers={'X-CSRF-Token':hcsrf,'Idempotency-Key':str(uuid.uuid4())},json={'expected_generation':current['bill_generation']})).json();transfer=bill['snapshot']['transfers'][0]
     claim=(await member.post(f'/api/v1/activities/{aid}/payments',headers={'X-CSRF-Token':mcsrf,'Idempotency-Key':str(uuid.uuid4())},json={'bill_revision_id':bill['id'],'transfer_id':transfer['id'],'amount_cents':6000})).json();await client.post(f"/api/v1/activities/{aid}/payments/{claim['id']}/confirm",headers={'X-CSRF-Token':hcsrf,'Idempotency-Key':str(uuid.uuid4())})

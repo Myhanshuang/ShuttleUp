@@ -1,6 +1,6 @@
 # ShuttleUp
 
-ShuttleUp 是一个从多人约时间、查场地、确认订场到 AA 结清的轻量 Web 应用。生产环境由一个 FastAPI 服务提供 API、SSE 和 Vue 静态文件，状态保存在一个 SQLite 数据卷中。
+ShuttleUp 是一个从多人约时间、查场地、确认订场到 AA 结清的轻量 Web 应用。生产环境由一个 FastAPI 服务提供 API、SSE 和 React 静态文件，状态保存在一个 SQLite 数据卷中。
 
 ## 本地开发
 
@@ -25,56 +25,26 @@ npm --prefix frontend run build
 uv run pytest backend/tests plugins/astrbot_plugin_shuttleup/tests
 ```
 
-## 单机部署
+## 服务器部署
 
-复制 `.env.example` 为 `.env`，至少替换 `APP_BASE_URL`、`APP_SECRET` 和 `ASTRBOT_MAIN_TOKEN`。随机密钥可以用 `openssl rand -hex 32` 生成。然后：
-
-```bash
-docker compose build
-docker compose up -d
-docker compose exec app shuttleup admin create
-curl http://127.0.0.1:8000/readyz
-```
-
-容器启动时先运行 Alembic 迁移，再启动一个 Uvicorn worker。镜像构建会编译 SQLite 3.51.3 并实际断言运行版本。前端只在构建阶段需要 Node；生产镜像不包含 Node 或浏览器。
-
-公网访问应放在现有 HTTPS 反向代理后。Nginx 的 SSE 路由需要关闭缓冲：
-
-```nginx
-location / {
-    proxy_pass http://127.0.0.1:8000;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_buffering off;
-    proxy_read_timeout 75s;
-}
-```
-
-将 `FORWARDED_ALLOW_IPS` 设为可信代理地址，不要在公网环境使用任意来源。
-
-## 备份与恢复
-
-在线备份使用 SQLite backup API，不直接复制正在写入的数据库文件：
+完整步骤见 [服务器部署说明](docs/deployment.md)，包含新部署、自动 HTTPS、已有反向代理、SMTP、管理员、备份恢复和现有数据库导入。
 
 ```bash
-docker compose exec app shuttleup backup /data/backup-2026-09-11.db
-docker compose cp app:/data/backup-2026-09-11.db ./backup-2026-09-11.db
+python3 scripts/init-env.py
+# 编辑 .env：实际访问地址、邮件服务和管理员邮箱
+# 已有 HTTPS 代理：
+docker compose up -d --build
+# 或使用附带的 Caddy（先配置 SITE_DOMAIN 与 ACME_EMAIL）：
+# docker compose -f compose.yaml -f compose.https.yaml up -d --build
 ```
 
-恢复时先停止服务，保留当前文件，再放入备份并启动：
-
-```bash
-docker compose down
-docker run --rm -v shuttleup_shuttleup-data:/data -v "$PWD":/backup alpine cp /backup/backup-2026-09-11.db /data/shuttleup.db
-docker compose up -d
-```
-
-恢复后检查 `/readyz` 并登录核对最近一场活动。请同时在宿主机或对象存储中保存备份，数据卷本身不算备份。
+生成供服务器使用的源码包：`python3 scripts/package-release.py`。输出到忽略目录 `release/`，不包含真实配置、数据库和私有场馆扩展。前端在 Docker 构建阶段编译，运行时只需一个应用容器和持久数据卷。
 
 ## AstrBot 插件
 
-将 `plugins/astrbot_plugin_shuttleup` 安装到 AstrBot，配置 HTTPS `base_url`、`bot_key=main` 与服务端相同的 `api_token`。用户在网页个人设置生成绑定码后私聊 `/羽球 绑定 绑定码`；主持人在活动页生成群绑定码后在群内执行 `/羽球 关联 群绑定码`。
+将 `plugins/astrbot_plugin_shuttleup` 安装到 AstrBot，配置 HTTPS `base_url`、`bot_key=main` 与服务端相同的 `api_token`。用户可直接在群里 @Bot 发送 `/发起约球 周末夜场`，无需先注册或绑定网页账号。群成员发送 `/羽球 加入` 即可参与；Bot 是和 Web 并列的公共入口，操作同一套活动。私聊 `/羽球 网页` 可通过一次性链接在网页继续同一身份。已有网页账号可在首次使用前选择绑定；网页创建的活动可由主持人在活动页生成群关联码后执行 `/羽球 关联 群绑定码`。
 
 真实 WakeUp 与首个场馆网站的联调输入、限制与验收状态见 `docs/integrations/`。
 
+
+邮箱注册的 SMTP 配置见 [邮箱注册与发件配置](docs/email-registration.md)。
